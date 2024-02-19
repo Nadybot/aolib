@@ -4,10 +4,10 @@ namespace AO\Package\Out;
 
 use AO\Package\Type;
 
-class RemoveBuddy extends OutPackage {
+class Pong extends OutPackage {
 	public function __construct(
-		public int $uid,
+		public string $extra="\0",
 	) {
-		parent::__construct(Type::BUDDY_REMOVE);
+		parent::__construct(Type::Ping);
 	}
 }

@@ -8,6 +8,6 @@ class Ping extends InPackage {
 	public function __construct(
 		public readonly string $extra,
 	) {
-		parent::__construct(Type::PING);
+		parent::__construct(Type::Ping);
 	}
 }

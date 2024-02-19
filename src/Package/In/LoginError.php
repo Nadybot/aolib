@@ -8,6 +8,6 @@ class LoginError extends InPackage {
 	public function __construct(
 		public string $error,
 	) {
-		parent::__construct(Type::LOGIN_ERROR);
+		parent::__construct(Type::LoginError);
 	}
 }

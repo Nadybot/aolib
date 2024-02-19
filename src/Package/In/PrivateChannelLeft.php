@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace AO\Package\Out;
+namespace AO\Package\In;
 
 use AO\Package\Type;
 
-class JoinPrivategroup extends OutPackage {
+class PrivateChannelLeft extends InPackage {
 	public function __construct(
 		public int $channelId,
 	) {
-		parent::__construct(Type::PRIVGRP_JOIN);
+		parent::__construct(Type::PrivateChannelLeft);
 	}
 }

@@ -6,12 +6,12 @@ use AO\Package\{ExtendedMessage, GroupId, Type};
 
 class GroupMessage extends InPackage {
 	public function __construct(
-		public GroupId $group,
-		public int $senderId,
+		public GroupId $groupId,
+		public int $charId,
 		public string $message,
 		public string $extra,
 		public ?ExtendedMessage $extendedMessage=null,
 	) {
-		parent::__construct(Type::GROUP_MESSAGE);
+		parent::__construct(Type::PublicChannelMessage);
 	}
 }

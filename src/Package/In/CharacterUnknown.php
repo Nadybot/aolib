@@ -4,10 +4,10 @@ namespace AO\Package\In;
 
 use AO\Package\Type;
 
-class ClientUnknown extends InPackage {
+class CharacterUnknown extends InPackage {
 	public function __construct(
-		public int $uid,
+		public int $charId,
 	) {
-		parent::__construct(Type::CLIENT_UNKNOWN);
+		parent::__construct(Type::CharacterUnknown);
 	}
 }

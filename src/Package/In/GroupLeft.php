@@ -8,6 +8,6 @@ class GroupLeft extends InPackage {
 	public function __construct(
 		public GroupId $groupId,
 	) {
-		parent::__construct(Type::GROUP_PART);
+		parent::__construct(Type::PublicChannelLeft);
 	}
 }

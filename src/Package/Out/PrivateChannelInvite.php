@@ -4,10 +4,10 @@ namespace AO\Package\Out;
 
 use AO\Package\Type;
 
-class Ping extends OutPackage {
+class PrivateChannelInvite extends OutPackage {
 	public function __construct(
-		public string $extra="\0",
+		public int $charId,
 	) {
-		parent::__construct(Type::PING);
+		parent::__construct(Type::PrivateChannelKick);
 	}
 }

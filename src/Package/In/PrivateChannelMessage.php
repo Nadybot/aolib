@@ -4,13 +4,13 @@ namespace AO\Package\In;
 
 use AO\Package\Type;
 
-class PrivategroupMessage extends InPackage {
+class PrivateChannelMessage extends InPackage {
 	public function __construct(
 		public int $channelId,
-		public int $userId,
+		public int $charId,
 		public string $message,
 		public string $extra,
 	) {
-		parent::__construct(Type::PRIVGRP_MESSAGE);
+		parent::__construct(Type::PrivateChannelMessage);
 	}
 }

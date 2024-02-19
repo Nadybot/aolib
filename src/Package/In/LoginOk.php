@@ -6,6 +6,6 @@ use AO\Package\Type;
 
 class LoginOk extends InPackage {
 	public function __construct() {
-		parent::__construct(Type::LOGIN_OK);
+		parent::__construct(Type::LoginOK);
 	}
 }

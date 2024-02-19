@@ -4,10 +4,11 @@ namespace AO\Package\In;
 
 use AO\Package\Type;
 
-class PrivategroupKicked extends InPackage {
+class PrivateChannelClientJoined extends InPackage {
 	public function __construct(
 		public int $channelId,
+		public int $charId,
 	) {
-		parent::__construct(Type::PRIVGRP_KICK);
+		parent::__construct(Type::PrivateChannelClientJoined);
 	}
 }

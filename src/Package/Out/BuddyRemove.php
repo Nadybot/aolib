@@ -4,10 +4,10 @@ namespace AO\Package\Out;
 
 use AO\Package\Type;
 
-class LoginSelectCharacter extends OutPackage {
+class BuddyRemove extends OutPackage {
 	public function __construct(
 		public int $charId,
 	) {
-		parent::__construct(Type::LoginSelect);
+		parent::__construct(Type::BuddyRemove);
 	}
 }

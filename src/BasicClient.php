@@ -67,7 +67,7 @@ class BasicClient {
 		}
 		$this->pendingUidLookups[$character] ??= [];
 		$suspension = EventLoop::getSuspension();
-		$this->write(new Out\NameLookup(name: $character));
+		$this->write(new Out\CharacterLookup(name: $character));
 		$this->pendingUidLookups[$character] []= $suspension;
 		return $suspension->suspend();
 	}
@@ -86,10 +86,10 @@ class BasicClient {
 		if (isset($character) || $cacheOnly) {
 			return $character;
 		}
-		$this->write(new Out\AddBuddy(uid: $uid));
+		$this->write(new Out\BuddyAdd(charId: $uid));
 		unset($this->nameToUid["X"]);
 		$this->lookupUid("X");
-		$this->write(new Out\RemoveBuddy(uid: $uid));
+		$this->write(new Out\BuddyRemove(charId: $uid));
 		return $this->uidToName[$uid] ?? null;
 	}
 
@@ -134,11 +134,11 @@ class BasicClient {
 		if ($cacheOnly || $cachedOnlineStatus !== null) {
 			return $cachedOnlineStatus;
 		}
-		$this->write(new Out\AddBuddy(uid: $uid));
+		$this->write(new Out\BuddyAdd(charId: $uid));
 		unset($this->nameToUid["X"]);
 		$this->lookupUid("X");
 		$onlineStatus = $this->buddylist[$uid] ?? null;
-		$this->write(new Out\RemoveBuddy(uid: $uid));
+		$this->write(new Out\BuddyRemove(charId: $uid));
 		return $onlineStatus;
 	}
 
@@ -240,7 +240,7 @@ class BasicClient {
 				"The character {$character} is not on account {$username}"
 			);
 		}
-		$this->write(new Out\LoginSelectCharacter(uid: $uid));
+		$this->write(new Out\LoginSelectCharacter(charId: $uid));
 		$response = $this->read();
 		if ($response === null) {
 			throw new LoginException("Connection unexpectedly closed");
@@ -260,10 +260,10 @@ class BasicClient {
 	 * @internal description
 	 */
 	protected function handleIncomingPackage(In\InPackage $package): void {
-		if ($package instanceof In\ClientLookupResult) {
+		if ($package instanceof In\CharacterLookupResult) {
 			$this->logger->debug("In\\ClientLookup received, caching uid <=> name lookups");
-			$this->nameToUid[$package->name] = $package->uid;
-			$this->uidToName[$package->uid] = $package->name;
+			$this->nameToUid[$package->name] = $package->charId;
+			$this->uidToName[$package->charId] = $package->name;
 			$suspended = $this->pendingUidLookups[$package->name] ?? [];
 			unset($this->pendingUidLookups[$package->name]);
 			$this->logger->debug("{num_waiting} clients waiting for lookup result", [
@@ -274,22 +274,22 @@ class BasicClient {
 				$this->logger->debug("Resuming fiber #{fiber}", ["fiber" => $numFiber++]);
 				$thread->resume($package->getUid());
 			}
-		} elseif ($package instanceof In\ClientName) {
+		} elseif ($package instanceof In\CharacterName) {
 			$this->logger->debug("In\\ClientName received, caching {uid} <=> \"{name}\" lookups", [
 				"uid" => $package->getUid(),
 				"name" => $package->name,
 			]);
-			$this->nameToUid[$package->name] = $package->uid;
-			$this->uidToName[$package->uid] = $package->name;
+			$this->nameToUid[$package->name] = $package->charId;
+			$this->uidToName[$package->charId] = $package->name;
 		} elseif ($package instanceof In\BuddyAdded) {
 			$this->logger->debug("In\\BuddyAdded received, putting into buddylist with status \"{online}\"", [
 				"online" => ($package->online ? "online" : "offline"),
 			]);
-			$this->buddylist[$package->uid] = $package->online;
+			$this->buddylist[$package->charId] = $package->online;
 		} elseif ($package instanceof In\BuddyRemoved) {
 			$this->logger->debug("In\\BuddyRemoved received, removing from buddylist");
-			unset($this->buddylist[$package->uid]);
-		} elseif ($package instanceof In\GroupAnnounced) {
+			unset($this->buddylist[$package->charId]);
+		} elseif ($package instanceof In\GroupJoined) {
 			$group = new PublicGroup(
 				id: $package->groupId,
 				name: $package->groupName,
@@ -316,10 +316,10 @@ class BasicClient {
 		$character = Utils::normalizeCharacter($character);
 		$uid = null;
 		for ($i = 0; $i < count($charlist->characters); $i++) {
-			$this->uidToName[$charlist->uids[$i]] = $charlist->characters[$i];
-			$this->nameToUid[$charlist->characters[$i]] = $charlist->uids[$i];
+			$this->uidToName[$charlist->charIds[$i]] = $charlist->characters[$i];
+			$this->nameToUid[$charlist->characters[$i]] = $charlist->charIds[$i];
 			if ($charlist->characters[$i] === $character) {
-				$uid = $charlist->uids[$i];
+				$uid = $charlist->charIds[$i];
 			}
 		}
 		return $uid;

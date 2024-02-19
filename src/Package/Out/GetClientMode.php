@@ -7,8 +7,8 @@ use AO\Package\{GroupId, Type};
 class GetClientmode extends OutPackage {
 	public function __construct(
 		public int $unknown1,
-		public GroupId $group,
+		public GroupId $groupId,
 	) {
-		parent::__construct(Type::CLIENTMODE_GET);
+		parent::__construct(Type::ClientModeGet);
 	}
 }

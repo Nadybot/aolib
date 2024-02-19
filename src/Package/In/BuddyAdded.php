@@ -6,10 +6,10 @@ use AO\Package\Type;
 
 class BuddyAdded extends InPackage {
 	public function __construct(
-		public int $uid,
+		public int $charId,
 		public bool $online,
 		public string $extra,
 	) {
-		parent::__construct(Type::BUDDY_ADD);
+		parent::__construct(Type::BuddyAdd);
 	}
 }

@@ -11,6 +11,6 @@ class SetClientmode extends OutPackage {
 		public int $unknown3,
 		public int $unknown4,
 	) {
-		parent::__construct(Type::CLIENTMODE_SET);
+		parent::__construct(Type::ClientModeSet);
 	}
 }

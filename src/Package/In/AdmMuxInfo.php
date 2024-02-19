@@ -15,6 +15,6 @@ class AdmMuxInfo extends InPackage {
 		public readonly array $unknown2,
 		public readonly array $unknown3,
 	) {
-		parent::__construct(Type::ADM_MUX_INFO);
+		parent::__construct(Type::AdmMuxInfo);
 	}
 }

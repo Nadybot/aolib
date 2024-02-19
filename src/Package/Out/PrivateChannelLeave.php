@@ -4,10 +4,10 @@ namespace AO\Package\Out;
 
 use AO\Package\Type;
 
-class NameLookup extends OutPackage {
+class PrivateChannelLeave extends OutPackage {
 	public function __construct(
-		public string $name,
+		public int $channelId,
 	) {
-		parent::__construct(Type::CLIENT_LOOKUP);
+		parent::__construct(Type::PrivateChannelLeft);
 	}
 }

@@ -6,10 +6,10 @@ use AO\Package\{GroupId, Type};
 
 class GroupMessage extends OutPackage {
 	public function __construct(
-		public GroupId $group,
+		public GroupId $groupId,
 		public string $message,
 		public string $extra="\0",
 	) {
-		parent::__construct(Type::GROUP_MESSAGE);
+		parent::__construct(Type::PublicChannelMessage);
 	}
 }

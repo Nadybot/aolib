@@ -8,6 +8,6 @@ class LoginSeed extends InPackage {
 	public function __construct(
 		public readonly string $serverSeed,
 	) {
-		parent::__construct(Type::LOGIN_SEED);
+		parent::__construct(Type::LoginSeed);
 	}
 }

@@ -13,6 +13,6 @@ class LoginRequest extends OutPackage {
 		#[Attr\Param(0)]
 		public int $zero=0,
 	) {
-		parent::__construct(Type::LOGIN_REQUEST);
+		parent::__construct(Type::LoginRequest);
 	}
 }

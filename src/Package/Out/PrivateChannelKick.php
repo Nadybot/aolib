@@ -4,10 +4,10 @@ namespace AO\Package\Out;
 
 use AO\Package\Type;
 
-class InviteToPrivategroup extends OutPackage {
+class PrivateChannelKick extends OutPackage {
 	public function __construct(
-		public int $uid,
+		public int $charId,
 	) {
-		parent::__construct(Type::PRIVGRP_INVITE);
+		parent::__construct(Type::PrivateChannelKick);
 	}
 }

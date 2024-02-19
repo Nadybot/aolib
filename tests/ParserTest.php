@@ -17,7 +17,7 @@ final class ParserTest extends TestCase {
 	public function testException(): void {
 		$this->expectException(Exception::class);
 		$package = new BinaryPackageIn(
-			type: Type::CC,
+			type: Type::ChatCommand,
 			length: 0,
 			body: "",
 		);
@@ -29,7 +29,7 @@ final class ParserTest extends TestCase {
 	public static function exampleBinaryPacketsIn(): array {
 		return [
 			[
-				new BinaryPackageIn(type: Type::BUDDY_ADD, length: 15, body: hex2bin("0000303900000001000101")),
+				new BinaryPackageIn(type: Type::BuddyAdd, length: 15, body: hex2bin("0000303900000001000101")),
 				In\BuddyAdded::class,
 			],
 		];
@@ -47,11 +47,11 @@ final class ParserTest extends TestCase {
 	public static function examplePackages(): array {
 		return [
 			"In\\Ping" => [new In\Ping(extra: '')],
-			"Out\\Ping" => [new Out\Ping(extra: random_bytes(random_int(1, 64)))],
-			"In\\BuddyAdded" => [new In\BuddyAdded(uid: random_int(1, 2^32), online: false, extra: "abc")],
+			"Out\\Ping" => [new Out\Pong(extra: random_bytes(random_int(1, 64)))],
+			"In\\BuddyAdded" => [new In\BuddyAdded(charId: random_int(1, 2^32), online: false, extra: "abc")],
 			"Out\\LoginRequest" => [new Out\LoginRequest(username: "Zero", key: "OMGsupers3cr3t", zero: 0)],
-			"In\\GroupAnnounced" => [new In\GroupAnnounced(groupId: new GroupId(type: GroupType::Org, number: 12345), groupName: "Public", flags: 0, unknown2: "")],
-			"Out\\PrivateGroupMessage" => [new Out\PrivategroupMessage(channelId: 1, message: "lol?")],
+			"In\\GroupAnnounced" => [new In\GroupJoined(groupId: new GroupId(type: GroupType::Org, number: 12345), groupName: "Public", flags: 0, unknown: "")],
+			"Out\\PrivateGroupMessage" => [new Out\PrivateChannelMessage(channelId: 1, message: "lol?")],
 		];
 	}
 
@@ -103,28 +103,28 @@ final class ParserTest extends TestCase {
 			In\LoginSeed::class,
 			In\LoginCharlist::class,
 			In\LoginOk::class,
-			In\ClientName::class,
-			In\AnonVicinityMessage::class,
-			In\ClientName::class,
+			In\CharacterName::class,
+			In\BroadcastMessage::class,
+			In\CharacterName::class,
 			In\BuddyAdded::class,
-			In\ClientName::class,
+			In\CharacterName::class,
 			In\BuddyAdded::class,
-			In\ClientName::class,
+			In\CharacterName::class,
 			In\BuddyAdded::class,
-			In\ClientName::class,
+			In\CharacterName::class,
 			In\BuddyAdded::class,
-			In\ClientName::class,
+			In\CharacterName::class,
 			In\BuddyAdded::class,
-			In\ClientName::class,
+			In\CharacterName::class,
 			In\BuddyAdded::class,
-			In\ClientName::class,
+			In\CharacterName::class,
 			In\BuddyAdded::class,
-			In\ClientName::class,
+			In\CharacterName::class,
 			In\BuddyAdded::class,
-			In\GroupAnnounced::class,
-			In\GroupAnnounced::class,
-			In\GroupAnnounced::class,
-			In\GroupAnnounced::class,
+			In\GroupJoined::class,
+			In\GroupJoined::class,
+			In\GroupJoined::class,
+			In\GroupJoined::class,
 		];
 		foreach ($classes as $class) {
 			$this->assertInstanceOf($class, $parser->parseBinaryPackage($connection->read()));

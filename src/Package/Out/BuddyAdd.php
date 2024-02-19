@@ -4,11 +4,11 @@ namespace AO\Package\Out;
 
 use AO\Package\Type;
 
-class AddBuddy extends OutPackage {
+class BuddyAdd extends OutPackage {
 	public function __construct(
-		public int $uid,
+		public int $charId,
 		public string $extra="\1",
 	) {
-		parent::__construct(Type::BUDDY_ADD);
+		parent::__construct(Type::BuddyAdd);
 	}
 }

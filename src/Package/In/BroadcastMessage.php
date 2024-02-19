@@ -4,12 +4,12 @@ namespace AO\Package\In;
 
 use AO\Package\Type;
 
-class Tell extends InPackage {
+class BroadcastMessage extends InPackage {
 	public function __construct(
-		public int $charId,
+		public string $sender,
 		public string $message,
 		public string $extra,
 	) {
-		parent::__construct(Type::PrivateMessage);
+		parent::__construct(Type::BroadcastMessage);
 	}
 }

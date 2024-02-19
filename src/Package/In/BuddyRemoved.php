@@ -6,8 +6,8 @@ use AO\Package\Type;
 
 class BuddyRemoved extends InPackage {
 	public function __construct(
-		public int $uid,
+		public int $charId,
 	) {
-		parent::__construct(Type::BUDDY_REMOVE);
+		parent::__construct(Type::BuddyRemove);
 	}
 }

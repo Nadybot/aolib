@@ -4,15 +4,15 @@ namespace AO\Package\In;
 
 use AO\Package\Type;
 
-class ClientName extends InPackage {
+class CharacterLookupResult extends InPackage {
 	public function __construct(
-		public int $uid,
+		public int $charId,
 		public string $name,
 	) {
-		parent::__construct(Type::CLIENT_NAME);
+		parent::__construct(Type::CharacterLookup);
 	}
 
 	public function getUid(): ?int {
-		return $this->uid === 0xFFFFFFFF ? null : $this->uid;
+		return $this->charId === 0xFFFFFFFF ? null : $this->charId;
 	}
 }

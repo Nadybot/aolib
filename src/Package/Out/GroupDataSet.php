@@ -6,10 +6,10 @@ use AO\Package\{GroupId, Type};
 
 class GroupDataSet extends OutPackage {
 	public function __construct(
-		public GroupId $group,
+		public GroupId $groupId,
 		public int $status,
 		public string $extra="\0",
 	) {
-		parent::__construct(Type::GROUP_DATA_SET);
+		parent::__construct(Type::PublicChannelDataSet);
 	}
 }

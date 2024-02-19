@@ -6,10 +6,10 @@ use AO\Package\Type;
 
 class VicinityMessage extends InPackage {
 	public function __construct(
-		public int $sender,
+		public int $charId,
 		public string $message,
 		public string $extra,
 	) {
-		parent::__construct(Type::MSG_VICINITY);
+		parent::__construct(Type::VicinityMessage);
 	}
 }

@@ -6,8 +6,11 @@ use AO\Package\Type;
 
 class SystemMessage extends InPackage {
 	public function __construct(
+		public int $clientId,
+		public int $windowId,
+		public int $instanceId,
 		public string $message,
 	) {
-		parent::__construct(Type::MSG_SYSTEM);
+		parent::__construct(Type::SystemMessage);
 	}
 }

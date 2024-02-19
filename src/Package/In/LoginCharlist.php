@@ -6,17 +6,17 @@ use AO\Package\Type;
 
 class LoginCharlist extends InPackage {
 	/**
-	 * @param int[]    $uids
+	 * @param int[]    $charIds
 	 * @param string[] $characters
 	 * @param int[]    $levels
 	 * @param bool[]   $online
 	 */
 	public function __construct(
-		public array $uids,
+		public array $charIds,
 		public array $characters,
 		public array $levels,
 		public array $online,
 	) {
-		parent::__construct(Type::LOGIN_CHARLIST);
+		parent::__construct(Type::LoginCharlist);
 	}
 }

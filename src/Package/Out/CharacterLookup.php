@@ -4,10 +4,10 @@ namespace AO\Package\Out;
 
 use AO\Package\Type;
 
-class KickFromPrivategroup extends OutPackage {
+class CharacterLookup extends OutPackage {
 	public function __construct(
-		public int $uid,
+		public string $name,
 	) {
-		parent::__construct(Type::PRIVGRP_KICK);
+		parent::__construct(Type::CharacterLookup);
 	}
 }
