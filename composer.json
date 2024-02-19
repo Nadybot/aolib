@@ -11,7 +11,7 @@
   ],
   "type": "library",
   "require": {
-    "php": ">=8.1.0",
+    "php": ">=8.1.17",
     "amphp/byte-stream": "^2.1.0",
     "thecodingmachine/safe": "^2.0",
     "psr/log": "^3.0",
@@ -33,6 +33,10 @@
   },
   "license": ["AGPL-3.0-or-later"],
   "scripts": {
-    "tests": ["phpunit -c phpunit.xml"]
+    "tests": [
+      "phpunit -c phpunit.xml",
+      "phpstan analyse --memory-limit 512M --no-progress --no-ansi -c phpstan.neon",
+      "phpcs --no-colors --report=checkstyle --standard=style/Nadybot/ruleset.xml -q src"
+    ]
   }
 }
