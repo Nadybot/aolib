@@ -1,5 +1,6 @@
 # Generic AMP3-based client and libraries for Anarchy Online Chat-bots in PHP
-![](https://github.com/nadybot/aolib/actions/workflows/php.yml/badge.svg)
+
+[![PHP Tests passing or not](https://github.com/nadybot/aolib/actions/workflows/php.yml/badge.svg)](https://github.com/Nadybot/aolib/actions/workflows/php.yml)
 
 This is a very basic library that provides AMP3-based async classes to deal with connections to the chat-server of Anarchy Online. It consists of
 
