@@ -1,6 +1,8 @@
 # Generic AMP3-based client and libraries for Anarchy Online Chat-bots in PHP
+![](https://github.com/nadybot/aolib/actions/workflows/php.yml/badge.svg)
 
 This is a very basic library that provides AMP3-based async classes to deal with connections to the chat-server of Anarchy Online. It consists of
+
 * a tokenizer to extract single packets out of an endless stream (files, sockets, …)
 * a connection-handler that utilizes the tokenizer to parse these string-packets into binary packets
 * a parser that parses these binary packets into AO-packets
@@ -68,6 +70,7 @@ Make sure you installed the developer packages as well and run `vendor/bin/phpun
 ## Developing
 
 The code has been written under VSCode using the following extensions:
+
 * PHP Intelephense (bmewburn.vscode-intelephense-client)
 * phpcs (shevaua.phpcs)
 * phpstan (sanderronde.phpstan-vscode)
