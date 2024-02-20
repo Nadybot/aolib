@@ -12,17 +12,14 @@ use Psr\Log\LoggerInterface;
 
 class Parser {
 	final public function __construct(
-		protected LoggerInterface $logger,
 		protected MMDB\Client $mmdb,
+		protected ?LoggerInterface $logger=null,
 	) {
 	}
 
-	public static function createDefault(
-		LoggerInterface $logger,
-	): static {
+	public static function createDefault(): static {
 		return new static(
-			$logger,
-			MMDB\AsyncClient::createDefault($logger)
+			mmdb: MMDB\AsyncClient::createDefault()
 		);
 	}
 
@@ -51,7 +48,7 @@ class Parser {
 				assert(is_string($args[2]));
 				/* Hack to support extended messages */
 				if ($args[1] === 0 && substr($args[2], 0, 2) == "~&") {
-					$this->logger->debug("Extended message {message} found", [
+					$this->logger?->debug("Extended message {message} found", [
 						"message" => $args[2],
 					]);
 					$extMsg = $this->readExtendedMessage($args[2]);
@@ -72,7 +69,7 @@ class Parser {
 					if ($extParams !== null) {
 						$args[3] = vsprintf($extMsg, $extParams);
 					} else {
-						$this->logger->error("Could not parse chat notice", [
+						$this->logger?->error("Could not parse chat notice", [
 							"packet" => $args,
 						]);
 					}
@@ -89,7 +86,7 @@ class Parser {
 		} else {
 			assert($result instanceof Package\Out);
 		}
-		$this->logger->debug("Parsed {binary_package} into {package}", [
+		$this->logger?->debug("Parsed {binary_package} into {package}", [
 			"binary_package" => $package,
 			"package" => $result,
 		]);
@@ -136,7 +133,7 @@ class Parser {
 			$args = $this->parseExtParams($msg);
 			$messageString = null;
 			if ($args === null) {
-				$this->logger->warning("Error parsing parameters for category '{category}', instance '{instance}' string '{message}'", [
+				$this->logger?->warning("Error parsing parameters for category '{category}', instance '{instance}' string '{message}'", [
 					"category" => $category,
 					"instance" => $instance,
 					"message" => $msg,
@@ -157,7 +154,7 @@ class Parser {
 			message: $message,
 			messageString: $messageString ?? "",
 		);
-		$this->logger->debug("Extended message {message} composed", ["message" => $extMessage]);
+		$this->logger?->debug("Extended message {message} composed", ["message" => $extMessage]);
 		return $extMessage;
 	}
 
@@ -233,7 +230,7 @@ class Parser {
 					break 2;
 
 				default:
-					$this->logger->warning("Unknown data type '{data_type}'", [
+					$this->logger?->warning("Unknown data type '{data_type}'", [
 						"data_type" => $dataType,
 					]);
 					return null;
@@ -292,18 +289,18 @@ class Parser {
 		if ($format === "") {
 			return [];
 		}
-		$this->logger->debug("Parsing AO binary format {format}", ["format" => $format]);
+		$this->logger?->debug("Parsing AO binary format {format}", ["format" => $format]);
 		switch (substr($format, 0, 1)) {
 			case "B":
 				$unp = unpack("Nnumber", $data);
-				$this->logger->debug("Parsed bool {value}", ["value" => $unp['number'] ? "true" : "false"]);
+				$this->logger?->debug("Parsed bool {value}", ["value" => $unp['number'] ? "true" : "false"]);
 				return [
 					(bool)$unp['number'],
 					...$this->parseFormat(substr($format, 1), substr($data, 4)),
 				];
 			case "I":
 				$unp = unpack("Nnumber", $data);
-				$this->logger->debug("Parsed int {value}", ["value" => $unp['number']]);
+				$this->logger?->debug("Parsed int {value}", ["value" => $unp['number']]);
 				return [
 					$unp['number'],
 					...$this->parseFormat(substr($format, 1), substr($data, 4)),
@@ -311,7 +308,7 @@ class Parser {
 			case "S":
 				$unp  = unpack("nlength", $data);
 				$len  = $unp['length'];
-				$this->logger->debug("Parsed string length {length}: {value}", [
+				$this->logger?->debug("Parsed string length {length}: {value}", [
 					"length" => $unp['length'],
 					"value" => new MaybeBinaryString(substr($data, 2, $len)),
 				]);
@@ -321,7 +318,7 @@ class Parser {
 				];
 			case "G":
 				$unp = unpack("Ctype/Nid", $data);
-				$this->logger->debug("Parsed group type={type}, id={id}", [
+				$this->logger?->debug("Parsed group type={type}, id={id}", [
 					"type" => $unp['type'],
 					"id" => $unp['id'],
 				]);
@@ -332,12 +329,12 @@ class Parser {
 			case "i":
 				$unp  = unpack("nlength", $data);
 				$len  = $unp['length'];
-				$this->logger->debug("Parsed int[] length {length}", ["length" => $len]);
+				$this->logger?->debug("Parsed int[] length {length}", ["length" => $len]);
 				$unp = unpack("N" . $len, substr($data, 2));
 
 				/** @var int[] */
 				$res = array_values($unp);
-				$this->logger->debug("Parsed int[] length {length}, values {values}", [
+				$this->logger?->debug("Parsed int[] length {length}, values {values}", [
 					"length" => $len,
 					"values" => $res,
 				]);
@@ -348,12 +345,12 @@ class Parser {
 			case "b":
 				$unp  = unpack("nlength", $data);
 				$len  = $unp['length'];
-				$this->logger->debug("Parsed bool[] length {length}", ["length" => $len]);
+				$this->logger?->debug("Parsed bool[] length {length}", ["length" => $len]);
 				$unp = unpack("N" . $len, substr($data, 2));
 
 				/** @var bool[] */
 				$res = array_map(boolval(...), array_values($unp));
-				$this->logger->debug("Parsed bool[] length {length}, values {values}", [
+				$this->logger?->debug("Parsed bool[] length {length}, values {values}", [
 					"length" => $len,
 					"values" => array_map(fn (bool $val): string => $val ? "true" : "false", $res),
 				]);
@@ -364,7 +361,7 @@ class Parser {
 			case "s":
 				$unp  = unpack("nlength", $data);
 				$arrayLength = $len = $unp['length'];
-				$this->logger->debug("Parsed string[] length {length}", ["length" => $len]);
+				$this->logger?->debug("Parsed string[] length {length}", ["length" => $len]);
 				$data = substr($data, 2);
 				$res  = [];
 				while ($len--) {
@@ -373,7 +370,7 @@ class Parser {
 					$res []= substr($data, 2, $slen);
 					$data  = substr($data, 2+$slen);
 				}
-				$this->logger->debug("Parsed string[] length {length}, values {values}", [
+				$this->logger?->debug("Parsed string[] length {length}, values {values}", [
 					"length" => $arrayLength,
 					"values" => $res,
 				]);

@@ -23,7 +23,7 @@ final class ParserTest extends TestCase {
 			length: 0,
 			body: "",
 		);
-		$parser = Parser::createDefault(TestLogger::create());
+		$parser = Parser::createDefault();
 		$parser->parseBinaryPackage($package);
 	}
 
@@ -40,7 +40,7 @@ final class ParserTest extends TestCase {
 	/** @psalm-param class-string $expectedClass */
 	#[DataProvider('exampleBinaryPacketsIn')]
 	public function testInboundParser(BinaryPackage\In $package, string $expectedClass): void {
-		$parser = Parser::createDefault(TestLogger::create());
+		$parser = Parser::createDefault();
 		$result = $parser->parseBinaryPackage($package);
 		$this->assertInstanceOf($expectedClass, $result);
 	}
@@ -59,7 +59,7 @@ final class ParserTest extends TestCase {
 
 	#[DataProvider('examplePackages')]
 	public function testPackagesBackAndForth(Package $package): void {
-		$parser = Parser::createDefault(TestLogger::create());
+		$parser = Parser::createDefault();
 		$binPackage = $package->toBinaryPackage();
 		$this->assertInstanceOf(BinaryPackage::class, $binPackage);
 		$reconverted = $parser->parseBinaryPackage($binPackage);
@@ -72,7 +72,7 @@ final class ParserTest extends TestCase {
 			108, 108, 32, 109, 101, 32, 104, 111, 119, 32, 115, 110, 105, 112, 101, 32, 119, 111, 114,
 			107, 115, 32, 102, 111, 114, 32, 97, 110, 32, 97, 103, 101, 110, 116, 63, 0, 0,
 		];
-		$parser = Parser::createDefault(TestLogger::create());
+		$parser = Parser::createDefault();
 		$binary = join("", array_map("chr", $data));
 		$binPackage = BinaryPackage\In::fromBinary($binary);
 		$package = $parser->parseBinaryPackage($binPackage);
@@ -90,7 +90,7 @@ final class ParserTest extends TestCase {
 			111, 117, 115, 101, 115, 16, 83, 116, 114, 101, 116, 32, 87, 101, 115, 116, 32, 66, 97,
 			110, 107, 105, 33, 33, 33, 48, 70, 105, 33, 33, 33, 45, 110, 126, 0, 0,
 		];
-		$parser = Parser::createDefault(TestLogger::create());
+		$parser = Parser::createDefault();
 		$binary = join("", array_map("chr", $data));
 		$binPackage = BinaryPackage\In::fromBinary($binary);
 		$package = $parser->parseBinaryPackage($binPackage);
@@ -99,8 +99,8 @@ final class ParserTest extends TestCase {
 
 	public function testFromExampleLogin(): void {
 		$file = openFile(__DIR__ . "/exampleLogin.bin", "rb");
-		$connection = new Connection(TestLogger::create(), $file, $file);
-		$parser = Parser::createDefault(TestLogger::create());
+		$connection = new Connection(logger: TestLogger::create(), reader: $file, writer: $file);
+		$parser = Parser::createDefault();
 		$classes = [
 			In\LoginSeed::class,
 			In\LoginCharlist::class,

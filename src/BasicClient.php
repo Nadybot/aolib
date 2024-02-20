@@ -3,6 +3,7 @@
 namespace AO;
 
 use AO\Package\{In, Out};
+use Nadylib\LeakyBucket\LeakyBucket;
 use Psr\Log\LoggerInterface;
 use Revolt\EventLoop;
 
@@ -24,11 +25,15 @@ class BasicClient {
 	/** @var array<string,Group> */
 	private array $publicGroups = [];
 
+	private LeakyBucket $bucket;
+
 	public function __construct(
-		private LoggerInterface $logger,
 		private Connection $connection,
 		private Parser $parser,
+		private ?LoggerInterface $logger=null,
+		?LeakyBucket $bucket=null,
 	) {
+		$this->bucket = $bucket ?? new LeakyBucket(size: 5, refillDelay: 1.0);
 	}
 
 	/**
@@ -150,7 +155,7 @@ class BasicClient {
 	public function read(): ?Package\In {
 		$binPackage = $this->connection->read();
 		if ($binPackage === null) {
-			$this->logger->info("Stream has closed the connection");
+			$this->logger?->info("Stream has closed the connection");
 			return null;
 		}
 		$package = $this->parser->parseBinaryPackage($binPackage);
@@ -160,7 +165,11 @@ class BasicClient {
 
 	public function write(Package\Out $package): void {
 		$binPackage = $package->toBinaryPackage();
-		$this->connection->write($binPackage->toBinary());
+		if ($package instanceof Package\Out\RateLimited) {
+			$this->bucket->take(callback: fn () => $this->connection->write($binPackage->toBinary()));
+		} else {
+			$this->connection->write($binPackage->toBinary());
+		}
 	}
 
 	public function disconnect(): void {
@@ -168,7 +177,7 @@ class BasicClient {
 	}
 
 	public function login(string $username, string $password, string $character): void {
-		$this->logger->debug("Logging in with username {$username}", ["username" => $username]);
+		$this->logger?->debug("Logging in with username {$username}", ["username" => $username]);
 		$this->publicGroups = [];
 		$this->buddylist = [];
 		$character = Utils::normalizeCharacter($character);
@@ -181,7 +190,7 @@ class BasicClient {
 				"Expected " . In\LoginSeed::class . ", got " . get_class($loginSeed)
 			);
 		}
-		$this->logger->debug("Received login seed {seed}, calculating reply", ["seed" => $loginSeed->serverSeed]);
+		$this->logger?->debug("Received login seed {seed}, calculating reply", ["seed" => $loginSeed->serverSeed]);
 		$key = TEA\TEA::generateLoginKey(
 			serverKey: $loginSeed->serverSeed,
 			username: $username,
@@ -201,7 +210,7 @@ class BasicClient {
 				$parts = explode(": ", $errorMsgs[0] ?? "");
 				throw new AccountFrozenException($parts[1] ?? "");
 			}
-			$this->logger->error("Error from login server: {error}", [
+			$this->logger?->error("Error from login server: {error}", [
 				"error" => $response->error,
 			]);
 			throw new LoginException($response->error);
@@ -213,7 +222,7 @@ class BasicClient {
 		}
 		$uid = $this->getUidFromCharlist($response, $character);
 		if ($uid === null) {
-			$this->logger->error(
+			$this->logger?->error(
 				"The character {charName} is not on the account {account}. Found only {validNames}",
 				[
 					"account" => $username,
@@ -246,33 +255,33 @@ class BasicClient {
 	 */
 	protected function handleIncomingPackage(Package\In $package): void {
 		if ($package instanceof In\CharacterLookupResult) {
-			$this->logger->debug("In\\ClientLookup received, caching uid <=> name lookups");
+			$this->logger?->debug("In\\ClientLookup received, caching uid <=> name lookups");
 			$this->nameToUid[$package->name] = $package->charId;
 			$this->uidToName[$package->charId] = $package->name;
 			$suspended = $this->pendingUidLookups[$package->name] ?? [];
 			unset($this->pendingUidLookups[$package->name]);
-			$this->logger->debug("{num_waiting} clients waiting for lookup result", [
+			$this->logger?->debug("{num_waiting} clients waiting for lookup result", [
 				"num_waiting" => count($suspended),
 			]);
 			$numFiber = 1;
 			foreach ($suspended as $thread) {
-				$this->logger->debug("Resuming fiber #{fiber}", ["fiber" => $numFiber++]);
+				$this->logger?->debug("Resuming fiber #{fiber}", ["fiber" => $numFiber++]);
 				$thread->resume($package->getUid());
 			}
 		} elseif ($package instanceof In\CharacterName) {
-			$this->logger->debug("In\\ClientName received, caching {uid} <=> \"{name}\" lookups", [
+			$this->logger?->debug("In\\ClientName received, caching {uid} <=> \"{name}\" lookups", [
 				"uid" => $package->getUid(),
 				"name" => $package->name,
 			]);
 			$this->nameToUid[$package->name] = $package->charId;
 			$this->uidToName[$package->charId] = $package->name;
 		} elseif ($package instanceof In\BuddyAdded) {
-			$this->logger->debug("In\\BuddyAdded received, putting into buddylist with status \"{online}\"", [
+			$this->logger?->debug("In\\BuddyAdded received, putting into buddylist with status \"{online}\"", [
 				"online" => ($package->online ? "online" : "offline"),
 			]);
 			$this->buddylist[$package->charId] = $package->online;
 		} elseif ($package instanceof In\BuddyRemoved) {
-			$this->logger->debug("In\\BuddyRemoved received, removing from buddylist");
+			$this->logger?->debug("In\\BuddyRemoved received, removing from buddylist");
 			unset($this->buddylist[$package->charId]);
 		} elseif ($package instanceof In\GroupJoined) {
 			$group = new Group(
@@ -280,14 +289,14 @@ class BasicClient {
 				name: $package->groupName,
 				flags: $package->flags
 			);
-			$this->logger->debug("New group {group} announced", [
+			$this->logger?->debug("New group {group} announced", [
 				"group" => $group,
 			]);
 			$this->publicGroups[$package->groupName] = $group;
 		} elseif ($package instanceof In\GroupLeft) {
 			foreach ($this->publicGroups as $name => $group) {
 				if ($package->groupId->sameAs($group->id)) {
-					$this->logger->debug("Removing the group {group} from our list", [
+					$this->logger?->debug("Removing the group {group} from our list", [
 						"group" => $name,
 					]);
 					unset($this->publicGroups[$name]);

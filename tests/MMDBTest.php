@@ -14,8 +14,8 @@ final class MMDBTest extends TestCase {
 	public function testException(): void {
 		$this->expectException(Exception::class);
 		new AsyncClient(
-			TestLogger::create(),
-			openFile(__FILE__, "rb"),
+			logger: TestLogger::create(),
+			mmdb: openFile(__FILE__, "rb"),
 		);
 	}
 
@@ -28,7 +28,7 @@ final class MMDBTest extends TestCase {
 
 	#[DataProvider('exampleMMDBTexts')]
 	public function testMessages(int $categoryId, int $messageId, string $expected): void {
-		$mmdb = AsyncClient::createDefault(TestLogger::create());
+		$mmdb = AsyncClient::createDefault();
 		$this->assertSame($expected, $mmdb->getMessageString($categoryId, $messageId));
 	}
 }

@@ -15,7 +15,8 @@
     "amphp/byte-stream": "^2.1.0",
     "thecodingmachine/safe": "^2.0",
     "psr/log": "^3.0",
-    "amphp/file": "^3.0"
+    "amphp/file": "^3.0",
+    "nadylib/leaky-bucket": "dev-main"
   },
   "autoload": {
     "psr-4": {
@@ -23,6 +24,13 @@
       "AO\\Tests\\": "tests"
     }
   },
+  "repositories": [
+    {
+      "type": "git",
+      "url": "https://github.com/Nadybot/leaky-bucket.git"
+    }
+  ],
+
   "require-dev": {
     "friendsofphp/php-cs-fixer": "^3.49",
     "squizlabs/php_codesniffer": "^3.8",

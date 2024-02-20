@@ -21,9 +21,9 @@ final class Connection implements \IteratorAggregate, WritableStream {
 	private Tokenizer $tokenizer;
 
 	public function __construct(
-		private LoggerInterface $logger,
 		ReadableStream $reader,
 		private WritableStream $writer,
+		private ?LoggerInterface $logger=null,
 	) {
 		$this->tokenizer = new Tokenizer($reader);
 	}
@@ -39,7 +39,7 @@ final class Connection implements \IteratorAggregate, WritableStream {
 			length: $header['length'],
 			body: substr($binPackage, 4),
 		);
-		$this->logger->debug("Received {package}", ["package" => $package]);
+		$this->logger?->debug("Received {package}", ["package" => $package]);
 		return $package;
 	}
 

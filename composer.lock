@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9cec3407ac7958a59b74202951d20f7d",
+    "content-hash": "37594588aca5bb90eea2b5ae2e6a285f",
     "packages": [
         {
             "name": "amphp/amp",
@@ -1226,6 +1226,55 @@
             "time": "2023-11-24T15:40:42+00:00"
         },
         {
+            "name": "nadylib/leaky-bucket",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Nadybot/leaky-bucket.git",
+                "reference": "4afc20f91247e49c272008730253bbbd16a9d982"
+            },
+            "require": {
+                "php": ">=8.1.17",
+                "psr/log": "^3.0",
+                "revolt/event-loop": "^1.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.49",
+                "phpstan/phpstan": "^1.10",
+                "phpunit/phpunit": "^10.0",
+                "squizlabs/php_codesniffer": "^3.8",
+                "thecodingmachine/phpstan-safe-rule": "^1.2"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Nadylib\\LeakyBucket\\": "src",
+                    "Nadylib\\LeakyBucket\\Tests\\": "tests"
+                }
+            },
+            "scripts": {
+                "tests": [
+                    "phpunit -c phpunit.xml",
+                    "phpstan analyse --memory-limit 512M --no-progress --no-ansi -c phpstan.neon",
+                    "phpcs --no-colors --report=checkstyle --standard=style/Nadybot/ruleset.xml -q src"
+                ]
+            },
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Nadyita",
+                    "email": "nadyita@hodorraid.org",
+                    "homepage": "https://nadybot.org",
+                    "role": "Developer"
+                }
+            ],
+            "description": "An fiber-based implementation of the LeakyBucket algorithm",
+            "time": "2024-02-20T16:20:30+00:00"
+        },
+        {
             "name": "psr/http-factory",
             "version": "1.0.2",
             "source": {
@@ -2198,16 +2247,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "1.10.58",
+            "version": "1.10.59",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "a23518379ec4defd9e47cbf81019526861623ec2"
+                "reference": "e607609388d3a6d418a50a49f7940e8086798281"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/a23518379ec4defd9e47cbf81019526861623ec2",
-                "reference": "a23518379ec4defd9e47cbf81019526861623ec2",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/e607609388d3a6d418a50a49f7940e8086798281",
+                "reference": "e607609388d3a6d418a50a49f7940e8086798281",
                 "shasum": ""
             },
             "require": {
@@ -2256,7 +2305,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-02-12T20:02:57+00:00"
+            "time": "2024-02-20T13:59:13+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -5164,7 +5213,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "nadylib/leaky-bucket": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

@@ -4,7 +4,7 @@ namespace AO\Package\Out;
 
 use AO\{Group, Package};
 
-class GroupMessage extends Package\Out {
+class GroupMessage extends Package\Out\RateLimited {
 	public function __construct(
 		public Group\Id $groupId,
 		public string $message,

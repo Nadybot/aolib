@@ -4,7 +4,7 @@ namespace AO\Package\Out;
 
 use AO\Package;
 
-class Tell extends Package\Out {
+class Tell extends Package\Out\RateLimited {
 	public function __construct(
 		public int $charId,
 		public string $message,

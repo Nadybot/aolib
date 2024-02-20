@@ -21,8 +21,8 @@ class AsyncClient implements Client {
 	private array $cache = [];
 
 	public function __construct(
-		private LoggerInterface $logger,
 		private File $mmdb,
+		private ?LoggerInterface $logger=null,
 	) {
 		$this->mmdb->seek(0);
 		$entry = $this->readEntry();
@@ -31,13 +31,13 @@ class AsyncClient implements Client {
 		}
 	}
 
-	public static function createDefault(LoggerInterface $logger): self {
+	public static function createDefault(): self {
 		$file = openFile(dirname(__DIR__, 2) . "/data/text.mdb", "rb");
-		return new self($logger, $file);
+		return new self(mmdb: $file);
 	}
 
 	public function getMessageString(int $categoryId, int $messageId): ?string {
-		$this->logger->info("Looking up messageId={message_id}, categoryId={category_id}", [
+		$this->logger?->info("Looking up messageId={message_id}, categoryId={category_id}", [
 			"category_id"=> $categoryId,
 			"message_id" => $messageId,
 		]);
@@ -52,7 +52,7 @@ class AsyncClient implements Client {
 		// find the category
 		$category = $this->findEntry($categoryId, 8);
 		if ($category === null) {
-			$this->logger->error("Could not find categoryID {category_id}", [
+			$this->logger?->error("Could not find categoryID {category_id}", [
 				"category_id"=> $categoryId,
 			]);
 			return null;
@@ -61,7 +61,7 @@ class AsyncClient implements Client {
 		// find the instance
 		$instance = $this->findEntry($messageId, $category->offset);
 		if ($instance === null) {
-			$this->logger->error("Could not find messageId {message_id} for categoryId {category_id}", [
+			$this->logger?->error("Could not find messageId {message_id} for categoryId {category_id}", [
 				"category_id"=> $categoryId,
 				"message_id" => $messageId,
 			]);
@@ -81,7 +81,7 @@ class AsyncClient implements Client {
 		// find the category
 		$category = $this->findEntry($categoryId, 8);
 		if ($category === null) {
-			$this->logger->error("Could not find categoryID {category_id}", [
+			$this->logger?->error("Could not find categoryID {category_id}", [
 				"category_id" => $categoryId,
 			]);
 			return null;
