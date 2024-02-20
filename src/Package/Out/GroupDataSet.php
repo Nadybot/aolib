@@ -2,15 +2,15 @@
 
 namespace AO\Package\Out;
 
-use AO\Package\{GroupId, Type};
+use AO\{Group, Package};
 
-class GroupDataSet extends OutPackage {
+class GroupDataSet extends Package\Out {
 	public function __construct(
-		public GroupId $groupId,
+		public Group\Id $groupId,
 		public int $status,
 		public string $extra="\0",
 	) {
-		parent::__construct(Type::PublicChannelDataSet);
+		parent::__construct(Package\Type::PublicChannelDataSet);
 	}
 
 	public static function getFormat(): string {

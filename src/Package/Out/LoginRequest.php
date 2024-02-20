@@ -2,9 +2,10 @@
 
 namespace AO\Package\Out;
 
-use AO\Package\{Attributes as Attr, Type};
+use AO\Package;
+use AO\Package\{Attributes as Attr};
 
-class LoginRequest extends OutPackage {
+class LoginRequest extends Package\Out {
 	public function __construct(
 		#[Attr\Param(1)]
 		public string $username,
@@ -13,7 +14,7 @@ class LoginRequest extends OutPackage {
 		#[Attr\Param(0)]
 		public int $zero=0,
 	) {
-		parent::__construct(Type::LoginRequest);
+		parent::__construct(Package\Type::LoginRequest);
 	}
 
 	public static function getFormat(): string {

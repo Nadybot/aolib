@@ -2,15 +2,15 @@
 
 namespace AO\Package\Out;
 
-use AO\Package\Type;
+use AO\Package;
 
-class ChatCommand extends OutPackage {
+class ChatCommand extends Package\Out {
 	/** @param string[] $commands */
 	public function __construct(
 		public array $commands,
 		public int $windowId=0
 	) {
-		parent::__construct(Type::ChatCommand);
+		parent::__construct(Package\Type::ChatCommand);
 	}
 
 	public static function getFormat(): string {

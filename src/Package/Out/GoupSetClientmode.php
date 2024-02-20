@@ -2,17 +2,17 @@
 
 namespace AO\Package\Out;
 
-use AO\Package\{GroupId, Type};
+use AO\{Group, Package};
 
-class GroupSetClientMode extends OutPackage {
+class GroupSetClientMode extends Package\Out {
 	public function __construct(
-		public GroupId $groupId,
+		public Group\Id $groupId,
 		public int $unknown1,
 		public int $unknown2,
 		public int $unknown3,
 		public int $unknown4,
 	) {
-		parent::__construct(Type::PublicChannelSetClientMode);
+		parent::__construct(Package\Type::PublicChannelSetClientMode);
 	}
 
 	public static function getFormat(): string {

@@ -2,16 +2,14 @@
 
 namespace AO;
 
-use AO\Package\GroupId;
-
-class PublicGroup {
+class Group {
 	public const NO_WRITE = 0x00000002;
 	public const NO_ASIAN = 0x00000020;
 	public const MUTE =     0x01010000;
 	public const LOG =      0x02020000;
 
-	public function __construct(
-		public GroupId $id,
+	final public function __construct(
+		public Group\Id $id,
 		public string $name,
 		public int $flags,
 	) {

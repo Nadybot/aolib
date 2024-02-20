@@ -2,16 +2,16 @@
 
 namespace AO\Package\In;
 
-use AO\Package\Type;
+use AO\Package;
 
-class SystemMessage extends InPackage {
+class SystemMessage extends Package\In {
 	public function __construct(
 		public int $clientId,
 		public int $windowId,
-		public int $instanceId,
+		public int $messageId,
 		public string $message,
 	) {
-		parent::__construct(Type::SystemMessage);
+		parent::__construct(Package\Type::SystemMessage);
 	}
 
 	public static function getFormat(): string {

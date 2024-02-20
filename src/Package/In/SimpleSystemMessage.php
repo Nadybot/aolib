@@ -2,13 +2,13 @@
 
 namespace AO\Package\In;
 
-use AO\Package\Type;
+use AO\Package;
 
-class SimpleSystemMessage extends InPackage {
+class SimpleSystemMessage extends Package\In {
 	public function __construct(
 		public string $message,
 	) {
-		parent::__construct(Type::SimpleSystemMessage);
+		parent::__construct(Package\Type::SimpleSystemMessage);
 	}
 
 	public static function getFormat(): string {

@@ -2,8 +2,7 @@
 
 namespace AO;
 
-use AO\Package\{GroupId, In, Out, Parser};
-use Closure;
+use AO\Package\{In, Out};
 use Psr\Log\LoggerInterface;
 use Revolt\EventLoop;
 
@@ -22,7 +21,7 @@ class BasicClient {
 	/** @var array<int,bool> */
 	private array $buddylist = [];
 
-	/** @var array<string,PublicGroup> */
+	/** @var array<string,Group> */
 	private array $publicGroups = [];
 
 	public function __construct(
@@ -35,11 +34,11 @@ class BasicClient {
 	/**
 	 * Get infomation about a public group we're in
 	 *
-	 * @param string|\AO\Package\GroupId $id the name or id of the group
+	 * @param string|Group\Id $id the name or id of the group
 	 *
-	 * @return PublicGroup|null Information about the group, or NULL, if we're not in it
+	 * @return Group|null Information about the group, or NULL, if we're not in it
 	 */
-	public function getGroup(string|GroupId $id): ?PublicGroup {
+	public function getGroup(string|Group\Id $id): ?Group {
 		if (is_string($id)) {
 			return $this->publicGroups[$id] ?? null;
 		}
@@ -143,26 +142,12 @@ class BasicClient {
 	}
 
 	/**
-	 * Register a callback for a given package type
-	 *
-	 * @template T of In\InPackage
-	 *
-	 * @param class-string $class    The name of the package class to match
-	 * @param Closure      $callback The closure to call with the package as argument
-	 *
-	 * @phpstan-param class-string<T> $class
-	 * @phpstan-param Closure(T): mixed $callback
-	 */
-	public function subscribe(string $class, Closure $callback): void {
-	}
-
-	/**
 	 * Read the next package, waiting for it
 	 *
-	 * @return In\InPackage|null Either null, if the connection was closed, or
-	 *                           the next package that was read
+	 * @return Package\In|null Either null, if the connection was closed, or
+	 *                         the next package that was read
 	 */
-	public function read(): ?In\InPackage {
+	public function read(): ?Package\In {
 		$binPackage = $this->connection->read();
 		if ($binPackage === null) {
 			$this->logger->info("Stream has closed the connection");
@@ -173,7 +158,7 @@ class BasicClient {
 		return $package;
 	}
 
-	public function write(Out\OutPackage $package): void {
+	public function write(Package\Out $package): void {
 		$binPackage = $package->toBinary();
 		$this->connection->write($binPackage->toBinary());
 	}
@@ -197,7 +182,7 @@ class BasicClient {
 			);
 		}
 		$this->logger->debug("Received login seed {seed}, calculating reply", ["seed" => $loginSeed->serverSeed]);
-		$key = TEA\Encryption::generateLoginKey(
+		$key = TEA\TEA::generateLoginKey(
 			serverKey: $loginSeed->serverSeed,
 			username: $username,
 			password: $password,
@@ -259,7 +244,7 @@ class BasicClient {
 	 *
 	 * @internal description
 	 */
-	protected function handleIncomingPackage(In\InPackage $package): void {
+	protected function handleIncomingPackage(Package\In $package): void {
 		if ($package instanceof In\CharacterLookupResult) {
 			$this->logger->debug("In\\ClientLookup received, caching uid <=> name lookups");
 			$this->nameToUid[$package->name] = $package->charId;
@@ -290,7 +275,7 @@ class BasicClient {
 			$this->logger->debug("In\\BuddyRemoved received, removing from buddylist");
 			unset($this->buddylist[$package->charId]);
 		} elseif ($package instanceof In\GroupJoined) {
-			$group = new PublicGroup(
+			$group = new Group(
 				id: $package->groupId,
 				name: $package->groupName,
 				flags: $package->flags

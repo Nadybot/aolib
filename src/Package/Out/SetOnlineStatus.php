@@ -2,13 +2,13 @@
 
 namespace AO\Package\Out;
 
-use AO\Package\Type;
+use AO\Package;
 
-class SetOnlineStatus extends OutPackage {
+class SetOnlineStatus extends Package\Out {
 	public function __construct(
 		public bool $online,
 	) {
-		parent::__construct(Type::SetOnlineStatus);
+		parent::__construct(Package\Type::SetOnlineStatus);
 	}
 
 	public static function getFormat(): string {

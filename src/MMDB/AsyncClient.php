@@ -13,12 +13,16 @@ use Psr\Log\LoggerInterface;
  * Reads entries from the text.mdb file
  */
 class AsyncClient implements Client {
-	/** @var array<int,array<int,string>> */
+	/**
+	 * A cache to quickly access the most common lookups
+	 *
+	 * @var array<int,array<int,string>>
+	 */
 	private array $cache = [];
 
 	public function __construct(
-		public LoggerInterface $logger,
-		public File $mmdb,
+		private LoggerInterface $logger,
+		private File $mmdb,
 	) {
 		$this->mmdb->seek(0);
 		$entry = $this->readEntry();
@@ -32,14 +36,14 @@ class AsyncClient implements Client {
 		return new self($logger, $file);
 	}
 
-	public function getMessageString(int $categoryId, int $instanceId): ?string {
-		$this->logger->info("Looking up instanceId={instance_id}, categoryId={category_id}", [
+	public function getMessageString(int $categoryId, int $messageId): ?string {
+		$this->logger->info("Looking up messageId={message_id}, categoryId={category_id}", [
 			"category_id"=> $categoryId,
-			"instance_id" => $instanceId,
+			"message_id" => $messageId,
 		]);
 		// check for entry in cache
-		if (isset($this->cache[$categoryId][$instanceId])) {
-			return $this->cache[$categoryId][$instanceId];
+		if (isset($this->cache[$categoryId][$messageId])) {
+			return $this->cache[$categoryId][$messageId];
 		}
 
 		$this->mmdb->seek(0);
@@ -55,18 +59,18 @@ class AsyncClient implements Client {
 		}
 
 		// find the instance
-		$instance = $this->findEntry($instanceId, $category->offset);
+		$instance = $this->findEntry($messageId, $category->offset);
 		if ($instance === null) {
-			$this->logger->error("Could not find instanceId {instance_id} for categoryId {category_id}", [
+			$this->logger->error("Could not find messageId {message_id} for categoryId {category_id}", [
 				"category_id"=> $categoryId,
-				"instance_id" => $instanceId,
+				"message_id" => $messageId,
 			]);
 			return null;
 		}
 
 		$this->mmdb->seek($instance->offset);
 		$message = $this->readString();
-		$this->cache[$categoryId][$instanceId] = $message;
+		$this->cache[$categoryId][$messageId] = $message;
 
 		return $message;
 	}
@@ -147,6 +151,9 @@ class AsyncClient implements Client {
 
 	private function readLong(): int {
 		$packed = $this->mmdb->read(length: 4);
+		if ($packed === null || strlen($packed) < 4) {
+			throw new \Exception("The MMDB file is broken");
+		}
 		$unpacked = unpack("L", $packed);
 		return array_pop($unpacked);
 	}
@@ -156,9 +163,15 @@ class AsyncClient implements Client {
 		$char = '';
 
 		$char = $this->mmdb->read(length: 1);
+		if ($char === null || strlen($char) < 1) {
+			throw new \Exception("The MMDB file is broken");
+		}
 		while ($char !== "\0" && !$this->mmdb->eof()) {
 			$message .= $char;
 			$char = $this->mmdb->read(length: 1);
+			if ($char === null) {
+				throw new \Exception("The MMDB file is broken");
+			}
 		}
 
 		return $message;

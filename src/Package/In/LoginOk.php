@@ -2,11 +2,11 @@
 
 namespace AO\Package\In;
 
-use AO\Package\Type;
+use AO\Package;
 
-class LoginOk extends InPackage {
+class LoginOk extends Package\In {
 	public function __construct() {
-		parent::__construct(Type::LoginOK);
+		parent::__construct(Package\Type::LoginOK);
 	}
 
 	public static function getFormat(): string {

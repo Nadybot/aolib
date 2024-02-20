@@ -2,13 +2,13 @@
 
 namespace AO\Package\Out;
 
-use AO\Package\Type;
+use AO\Package;
 
-class CharacterLookup extends OutPackage {
+class CharacterLookup extends Package\Out {
 	public function __construct(
 		public string $name,
 	) {
-		parent::__construct(Type::CharacterLookup);
+		parent::__construct(Package\Type::CharacterLookup);
 	}
 
 	public static function getFormat(): string {

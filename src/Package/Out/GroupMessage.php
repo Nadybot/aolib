@@ -2,15 +2,15 @@
 
 namespace AO\Package\Out;
 
-use AO\Package\{GroupId, Type};
+use AO\{Group, Package};
 
-class GroupMessage extends OutPackage {
+class GroupMessage extends Package\Out {
 	public function __construct(
-		public GroupId $groupId,
+		public Group\Id $groupId,
 		public string $message,
 		public string $extra="\0",
 	) {
-		parent::__construct(Type::PublicChannelMessage);
+		parent::__construct(Package\Type::PublicChannelMessage);
 	}
 
 	public static function getFormat(): string {

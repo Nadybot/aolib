@@ -2,13 +2,13 @@
 
 namespace AO\Package\In;
 
-use AO\Package\Type;
+use AO\Package;
 
-class CharacterUnknown extends InPackage {
+class CharacterUnknown extends Package\In {
 	public function __construct(
 		public int $charId,
 	) {
-		parent::__construct(Type::CharacterUnknown);
+		parent::__construct(Package\Type::CharacterUnknown);
 	}
 
 	public static function getFormat(): string {

@@ -1,12 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace AO\Package;
+namespace AO;
 
 use function Safe\unpack;
 
-use AO\Internal\MaybeBinary;
-use AO\MMDB;
+use AO\Internal\MaybeBinaryString;
 use AO\Package\Attributes\Param;
+use AO\Package\In;
+use AO\{BinaryPackage, Package};
 use Psr\Log\LoggerInterface;
 
 class Parser {
@@ -25,15 +26,15 @@ class Parser {
 		);
 	}
 
-	/** @phpstan-return ($package is BinaryPackageIn ? In\InPackage : Out\OutPackage) */
-	public function parseBinaryPackage(BinaryPackage $package): BasePackage {
-		$class = ($package instanceof BinaryPackageIn)
+	/** @phpstan-return ($package is BinaryPackage\In ? Package\In : Package\Out) */
+	public function parseBinaryPackage(BinaryPackage $package): Package {
+		$class = ($package instanceof BinaryPackage\In)
 			? $package->type->classIn()
 			: $package->type->classOut();
 		if (!class_exists($class)) {
 			throw new \Exception("Non-existing class {$class} requested for package");
 		}
-		if (!is_a($class, BasePackage::class, true)) {
+		if (!is_a($class, Package::class, true)) {
 			throw new \Exception("Requested class {$class} is not an AO package");
 		}
 		$format = $class::getFormat();
@@ -83,10 +84,10 @@ class Parser {
 		}
 		$args = $this->orderArgs($class, ...$args);
 		$result = new $class(...$args);
-		if ($package instanceof BinaryPackageIn) {
-			assert($result instanceof In\InPackage);
+		if ($package instanceof BinaryPackage\In) {
+			assert($result instanceof Package\In);
 		} else {
-			assert($result instanceof Out\OutPackage);
+			assert($result instanceof Package\Out);
 		}
 		$this->logger->debug("Parsed {binary_package} into {package}", [
 			"binary_package" => $package,
@@ -261,11 +262,11 @@ class Parser {
 	/**
 	 * @psalm-param class-string $class
 	 *
-	 * @param null|bool|int|string|ExtendedMessage|bool[]|string[]|int[]|GroupId $args
+	 * @param null|bool|int|string|ExtendedMessage|bool[]|string[]|int[]|Group\Id $args
 	 *
-	 * @return list<null|bool|int|string|ExtendedMessage|bool[]|string[]|int[]|GroupId>
+	 * @return list<null|bool|int|string|ExtendedMessage|bool[]|string[]|int[]|Group\Id>
 	 */
-	private function orderArgs(string $class, null|bool|int|string|ExtendedMessage|array|GroupId ...$args): array {
+	private function orderArgs(string $class, null|bool|int|string|ExtendedMessage|array|Group\Id ...$args): array {
 		$orderedArgs = [];
 		$refClass = new \ReflectionClass($class);
 		$refFunc = $refClass->getMethod("__construct");
@@ -286,7 +287,7 @@ class Parser {
 		return $orderedArgs;
 	}
 
-	/** @return list<string|int|bool|GroupId|bool[]|string[]|int[]> */
+	/** @return list<string|int|bool|Group\Id|bool[]|string[]|int[]> */
 	private function parseFormat(string $format, string $data): array {
 		if ($format === "") {
 			return [];
@@ -312,7 +313,7 @@ class Parser {
 				$len  = $unp['length'];
 				$this->logger->debug("Parsed string length {length}: {value}", [
 					"length" => $unp['length'],
-					"value" => new MaybeBinary(substr($data, 2, $len)),
+					"value" => new MaybeBinaryString(substr($data, 2, $len)),
 				]);
 				return [
 					substr($data, 2, $len),
@@ -325,7 +326,7 @@ class Parser {
 					"id" => $unp['id'],
 				]);
 				return [
-					new GroupId(type: $unp['type'], number: $unp['id']),
+					new Group\Id(type: $unp['type'], number: $unp['id']),
 					...$this->parseFormat(substr($format, 1), substr($data, 5)),
 				];
 			case "i":

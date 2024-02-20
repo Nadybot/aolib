@@ -2,13 +2,13 @@
 
 namespace AO\Package\Out;
 
-use AO\Package\Type;
+use AO\Package;
 
-class PrivateChannelInvite extends OutPackage {
+class PrivateChannelInvite extends Package\Out {
 	public function __construct(
 		public int $charId,
 	) {
-		parent::__construct(Type::PrivateChannelKick);
+		parent::__construct(Package\Type::PrivateChannelKick);
 	}
 
 	public static function getFormat(): string {

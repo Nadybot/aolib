@@ -2,13 +2,13 @@
 
 namespace AO\Package\In;
 
-use AO\Package\{GroupId, Type};
+use AO\{Group, Package};
 
-class GroupLeft extends InPackage {
+class GroupLeft extends Package\In {
 	public function __construct(
-		public GroupId $groupId,
+		public Group\Id $groupId,
 	) {
-		parent::__construct(Type::PublicChannelLeft);
+		parent::__construct(Package\Type::PublicChannelLeft);
 	}
 
 	public static function getFormat(): string {

@@ -27,8 +27,8 @@ final class MMDBTest extends TestCase {
 	}
 
 	#[DataProvider('exampleMMDBTexts')]
-	public function testMessages(int $categoryId, int $instanceId, string $expected): void {
+	public function testMessages(int $categoryId, int $messageId, string $expected): void {
 		$mmdb = AsyncClient::createDefault(TestLogger::create());
-		$this->assertSame($expected, $mmdb->getMessageString($categoryId, $instanceId));
+		$this->assertSame($expected, $mmdb->getMessageString($categoryId, $messageId));
 	}
 }

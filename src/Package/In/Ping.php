@@ -2,13 +2,13 @@
 
 namespace AO\Package\In;
 
-use AO\Package\Type;
+use AO\Package;
 
-class Ping extends InPackage {
+class Ping extends Package\In {
 	public function __construct(
 		public readonly string $extra,
 	) {
-		parent::__construct(Type::Ping);
+		parent::__construct(Package\Type::Ping);
 	}
 
 	public static function getFormat(): string {

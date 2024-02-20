@@ -2,14 +2,14 @@
 
 namespace AO\Package\Out;
 
-use AO\Package\{GroupId, Type};
+use AO\{Group, Package};
 
-class ClientmodeGet extends OutPackage {
+class ClientmodeGet extends Package\Out {
 	public function __construct(
 		public int $unknown1,
-		public GroupId $groupId,
+		public Group\Id $groupId,
 	) {
-		parent::__construct(Type::ClientModeGet);
+		parent::__construct(Package\Type::ClientModeGet);
 	}
 
 	public static function getFormat(): string {

@@ -2,13 +2,13 @@
 
 namespace AO\Package\In;
 
-use AO\Package\Type;
+use AO\Package;
 
-class PrivateChannelKicked extends InPackage {
+class PrivateChannelKicked extends Package\In {
 	public function __construct(
 		public int $channelId,
 	) {
-		parent::__construct(Type::PrivateChannelKick);
+		parent::__construct(Package\Type::PrivateChannelKick);
 	}
 
 	public static function getFormat(): string {

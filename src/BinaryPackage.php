@@ -1,8 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace AO\Package;
+namespace AO;
 
 use function Safe\{pack, unpack};
+
+use AO\Internal\BinaryString;
+use AO\Package\Type;
 use Stringable;
 
 class BinaryPackage implements Stringable {
@@ -16,20 +19,15 @@ class BinaryPackage implements Stringable {
 	public function __toString(): string {
 		$classes = explode("\\", get_class($this));
 		$class = array_pop($classes);
-		$binData = join("", array_map(dechex(...), array_map(ord(...), str_split($this->body, 1))));
-		if (strlen($binData)) {
-			$binData = "0x{$binData}";
-		} else {
-			$binData = '""';
-		}
+		$body = (string)(new BinaryString($this->body));
 		return "<{$class}>{".
 				"type={$this->type->name},".
 				"length={$this->length},".
-				"body={$binData}}";
+				"body={$body}}";
 	}
 
 	public function toBinary(): string {
-		return pack("nn", $this->type->value, $this->length) . ($this->body??"");
+		return pack("nn", $this->type->value, $this->length) . $this->body;
 	}
 
 	public static function fromBinary(string $binary): self {

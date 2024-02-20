@@ -2,14 +2,14 @@
 
 namespace AO\Package\In;
 
-use AO\Package\Type;
+use AO\Package;
 
-class PrivateChannelClientLeft extends InPackage {
+class PrivateChannelClientLeft extends Package\In {
 	public function __construct(
 		public int $channelId,
 		public int $charId,
 	) {
-		parent::__construct(Type::PrivateChannelClientLeft);
+		parent::__construct(Package\Type::PrivateChannelClientLeft);
 	}
 
 	public static function getFormat(): string {

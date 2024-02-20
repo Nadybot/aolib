@@ -2,15 +2,15 @@
 
 namespace AO\Package\In;
 
-use AO\Package\Type;
+use AO\Package;
 
-class BroadcastMessage extends InPackage {
+class BroadcastMessage extends Package\In {
 	public function __construct(
 		public string $sender,
 		public string $message,
 		public string $extra,
 	) {
-		parent::__construct(Type::BroadcastMessage);
+		parent::__construct(Package\Type::BroadcastMessage);
 	}
 
 	public static function getFormat(): string {

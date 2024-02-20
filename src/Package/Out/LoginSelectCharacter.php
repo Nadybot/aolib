@@ -2,13 +2,13 @@
 
 namespace AO\Package\Out;
 
-use AO\Package\Type;
+use AO\Package;
 
-class LoginSelectCharacter extends OutPackage {
+class LoginSelectCharacter extends Package\Out {
 	public function __construct(
 		public int $charId,
 	) {
-		parent::__construct(Type::LoginSelect);
+		parent::__construct(Package\Type::LoginSelect);
 	}
 
 	public static function getFormat(): string {

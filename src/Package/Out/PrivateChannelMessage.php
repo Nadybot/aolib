@@ -2,15 +2,15 @@
 
 namespace AO\Package\Out;
 
-use AO\Package\Type;
+use AO\Package;
 
-class PrivateChannelMessage extends OutPackage {
+class PrivateChannelMessage extends Package\Out {
 	public function __construct(
 		public int $channelId,
 		public string $message,
 		public string $extra="\0",
 	) {
-		parent::__construct(Type::PrivateChannelMessage);
+		parent::__construct(Package\Type::PrivateChannelMessage);
 	}
 
 	public static function getFormat(): string {

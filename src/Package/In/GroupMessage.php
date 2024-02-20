@@ -2,17 +2,17 @@
 
 namespace AO\Package\In;
 
-use AO\Package\{ExtendedMessage, GroupId, Type};
+use AO\{ExtendedMessage, Group, Package};
 
-class GroupMessage extends InPackage {
+class GroupMessage extends Package\In {
 	public function __construct(
-		public GroupId $groupId,
+		public Group\Id $groupId,
 		public int $charId,
 		public string $message,
 		public string $extra,
 		public ?ExtendedMessage $extendedMessage=null,
 	) {
-		parent::__construct(Type::PublicChannelMessage);
+		parent::__construct(Package\Type::PublicChannelMessage);
 	}
 
 	public static function getFormat(): string {

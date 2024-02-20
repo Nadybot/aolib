@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace AO\Package;
+namespace AO;
 
 final class ExtendedMessage {
 	public function __construct(

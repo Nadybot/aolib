@@ -2,15 +2,15 @@
 
 namespace AO\Package\In;
 
-use AO\Package\Type;
+use AO\Package;
 
-class BuddyAdded extends InPackage {
+class BuddyAdded extends Package\In {
 	public function __construct(
 		public int $charId,
 		public bool $online,
 		public string $extra,
 	) {
-		parent::__construct(Type::BuddyAdd);
+		parent::__construct(Package\Type::BuddyAdd);
 	}
 
 	public static function getFormat(): string {

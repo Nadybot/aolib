@@ -7,7 +7,7 @@ use function Safe\{pack, unpack};
 use Exception;
 use InvalidArgumentException;
 
-class Encryption {
+class TEA {
 	/**
 	 * Generate a Diffie-Hellman login key
 	 *

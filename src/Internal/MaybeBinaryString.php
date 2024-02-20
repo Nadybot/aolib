@@ -4,7 +4,7 @@ namespace AO\Internal;
 
 use Stringable;
 
-class MaybeBinary implements Stringable {
+final class MaybeBinaryString implements Stringable {
 	public function __construct(private string $data) {
 	}
 

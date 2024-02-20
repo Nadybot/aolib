@@ -6,14 +6,14 @@ use function Safe\unpack;
 use Amp\ByteStream\{ReadableStream, WritableStream};
 
 use Amp\Cancellation;
-use AO\Package\{BinaryPackageIn, BinaryPackageOut, Type};
+use AO\Package\Type;
 use Closure;
 use Psr\Log\LoggerInterface;
 
 /**
  * A traversable stream reader for AO connections
  *
- * @implements \IteratorAggregate<int, BinaryPackageIn>
+ * @implements \IteratorAggregate<int, BinaryPackage\In>
  *
  * @package AO\Connection
  */
@@ -28,13 +28,13 @@ final class Connection implements \IteratorAggregate, WritableStream {
 		$this->tokenizer = new Tokenizer($reader);
 	}
 
-	public function read(?Cancellation $cancellation=null): ?BinaryPackageIn {
+	public function read(?Cancellation $cancellation=null): ?BinaryPackage\In {
 		$binPackage = $this->tokenizer->read($cancellation);
 		if ($binPackage === null) {
 			return null;
 		}
 		$header = unpack("ntype/nlength", $binPackage);
-		$package = new BinaryPackageIn(
+		$package = new BinaryPackage\In(
 			type: Type::from($header['type']),
 			length: $header['length'],
 			body: substr($binPackage, 4),
@@ -43,7 +43,7 @@ final class Connection implements \IteratorAggregate, WritableStream {
 		return $package;
 	}
 
-	/** @return \Traversable<int, BinaryPackageIn> */
+	/** @return \Traversable<int, BinaryPackage\In> */
 	public function getIterator(): \Traversable {
 		while (($chunk = $this->read()) !== null) {
 			yield $chunk;
@@ -62,8 +62,8 @@ final class Connection implements \IteratorAggregate, WritableStream {
 		$this->writer->onClose($onClose);
 	}
 
-	public function write(string|BinaryPackageOut $bytes): void {
-		if ($bytes instanceof BinaryPackageOut) {
+	public function write(string|BinaryPackage\Out $bytes): void {
+		if ($bytes instanceof BinaryPackage\Out) {
 			$bytes = $bytes->toBinary();
 		}
 		$this->writer->write($bytes);

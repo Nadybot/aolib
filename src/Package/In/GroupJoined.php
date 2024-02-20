@@ -2,16 +2,16 @@
 
 namespace AO\Package\In;
 
-use AO\Package\{GroupId, Type};
+use AO\{Group, Package};
 
-class GroupJoined extends InPackage {
+class GroupJoined extends Package\In {
 	public function __construct(
-		public GroupId $groupId,
+		public Group\Id $groupId,
 		public string $groupName,
 		public int $flags,
 		public string $unknown,
 	) {
-		parent::__construct(Type::PublicChannelJoined);
+		parent::__construct(Package\Type::PublicChannelJoined);
 	}
 
 	public static function getFormat(): string {

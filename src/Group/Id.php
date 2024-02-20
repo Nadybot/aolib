@@ -1,19 +1,19 @@
 <?php declare(strict_types=1);
 
-namespace AO\Package;
+namespace AO\Group;
 
 use function Safe\pack;
 
 use Stringable;
 
-class GroupId implements Stringable {
-	public GroupType $type;
+class Id implements Stringable {
+	public Type $type;
 
 	public function __construct(
-		int|GroupType $type,
+		int|Type $type,
 		public int $number,
 	) {
-		$this->type = is_int($type) ? GroupType::from($type) : $type;
+		$this->type = is_int($type) ? Type::from($type) : $type;
 	}
 
 	public function __toString(): string {
@@ -24,7 +24,7 @@ class GroupId implements Stringable {
 		return pack("CN", $this->type->value, $this->number);
 	}
 
-	public function sameAs(GroupId $other): bool {
+	public function sameAs(self $other): bool {
 		return $this->type === $other->type && $this->number === $other->number;
 	}
 }

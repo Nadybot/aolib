@@ -1,16 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace AO\Package;
+namespace AO;
 
 use function Safe\{json_encode, pack};
+
 use AO\Package\Attributes\Param;
 use Exception;
 use ReflectionClass;
 use Safe\Exceptions\JsonException;
 use Stringable;
 
-abstract class BasePackage implements Stringable {
-	public function __construct(protected Type $type) {
+abstract class Package implements Stringable {
+	public function __construct(protected Package\Type $type) {
 	}
 
 	public function __toString() {
@@ -65,7 +66,7 @@ abstract class BasePackage implements Stringable {
 
 	abstract public static function getFormat(): string;
 
-	/** @return list<bool|int|string|string[]|int[]|GroupId> */
+	/** @return list<bool|int|string|string[]|int[]|Group\Id> */
 	protected function getPackageValues(): array {
 		$result = [];
 		$refClass = new \ReflectionClass($this);
@@ -91,8 +92,8 @@ abstract class BasePackage implements Stringable {
 		return $result;
 	}
 
-	/** @param bool|int|string|string[]|int[]|GroupId $value */
-	protected function toFormat(string $format, bool|int|string|array|GroupId $value): string {
+	/** @param bool|int|string|string[]|int[]|Group\Id $value */
+	protected function toFormat(string $format, bool|int|string|array|Group\Id $value): string {
 		switch ($format) {
 			case "B":
 				assert(is_bool($value));
@@ -105,7 +106,7 @@ abstract class BasePackage implements Stringable {
 				return pack("n", strlen($value)) . $value;
 			case "G":
 				assert(is_object($value));
-				assert($value instanceof GroupId);
+				assert($value instanceof Group\Id);
 				return pack("CN", $value->type->value, $value->number);
 			case "i":
 				assert(is_array($value));
