@@ -62,7 +62,7 @@ class Parser {
 					}
 				}
 				break;
-			case In\SimpleSystemMessage::class:
+			case In\SystemMessage::class:
 				assert(count($args) == 4);
 				assert(is_int($args[2]));
 				assert(is_string($args[3]));
