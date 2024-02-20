@@ -33,7 +33,7 @@ $socket = connect("chat.d1.funcom.com:7105");
 $client = new \AO\BasicClient(
     $logger,
     new \AO\Connection($logger, $socket, $socket);
-    \AO\Package\Parser::createDefault($logger)
+    \AO\Parser::createDefault($logger)
 );
 $client->login(username: "Myuser", password: "Mypassword", character: "Mychar");
 while (($package = $client->read()) !== null) {
