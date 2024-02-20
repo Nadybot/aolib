@@ -46,7 +46,7 @@ abstract class Package implements Stringable {
 		return "<{$class}>{" . join(",", $values) . "}";
 	}
 
-	public function toBinary(): BinaryPackage {
+	public function toBinaryPackage(): BinaryPackage {
 		$type = $this->type;
 		$format = $this->getFormat();
 		$values = $this->getPackageValues();

@@ -60,7 +60,7 @@ final class ParserTest extends TestCase {
 	#[DataProvider('examplePackages')]
 	public function testPackagesBackAndForth(Package $package): void {
 		$parser = Parser::createDefault(TestLogger::create());
-		$binPackage = $package->toBinary();
+		$binPackage = $package->toBinaryPackage();
 		$this->assertInstanceOf(BinaryPackage::class, $binPackage);
 		$reconverted = $parser->parseBinaryPackage($binPackage);
 		$this->assertSame(serialize($package), serialize($reconverted));

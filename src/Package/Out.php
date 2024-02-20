@@ -5,8 +5,8 @@ namespace AO\Package;
 use AO\{BinaryPackage, Package};
 
 abstract class Out extends Package {
-	public function toBinary(): BinaryPackage\Out {
-		$package = parent::toBinary();
+	public function toBinaryPackage(): BinaryPackage\Out {
+		$package = parent::toBinaryPackage();
 		return new BinaryPackage\Out(
 			type: $package->type,
 			length: $package->length,

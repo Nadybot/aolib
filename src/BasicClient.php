@@ -159,7 +159,7 @@ class BasicClient {
 	}
 
 	public function write(Package\Out $package): void {
-		$binPackage = $package->toBinary();
+		$binPackage = $package->toBinaryPackage();
 		$this->connection->write($binPackage->toBinary());
 	}
 
