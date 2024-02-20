@@ -61,7 +61,7 @@ All the logic happens behind the scenes. You either receive an int/string, or nu
 This is the most basic interface:
 
 ```php
-$client->write(new Out\Tell(uid: 1234, message: "Hello!"));
+$client->write(new Out\Tell(charId: 1234, message: "Hello!"));
 ```
 
 ## Running tests
