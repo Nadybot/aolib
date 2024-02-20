@@ -12,4 +12,8 @@ class Tell extends InPackage {
 	) {
 		parent::__construct(Type::PrivateMessage);
 	}
+
+	public static function getFormat(): string {
+		return "ISS";
+	}
 }

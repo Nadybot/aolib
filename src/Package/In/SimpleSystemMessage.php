@@ -10,4 +10,8 @@ class SimpleSystemMessage extends InPackage {
 	) {
 		parent::__construct(Type::SimpleSystemMessage);
 	}
+
+	public static function getFormat(): string {
+		return "S";
+	}
 }

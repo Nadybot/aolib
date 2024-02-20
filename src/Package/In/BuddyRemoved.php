@@ -10,4 +10,8 @@ class BuddyRemoved extends InPackage {
 	) {
 		parent::__construct(Type::BuddyRemove);
 	}
+
+	public static function getFormat(): string {
+		return "I";
+	}
 }

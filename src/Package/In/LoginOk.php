@@ -8,4 +8,8 @@ class LoginOk extends InPackage {
 	public function __construct() {
 		parent::__construct(Type::LoginOK);
 	}
+
+	public static function getFormat(): string {
+		return "";
+	}
 }

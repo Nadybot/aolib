@@ -10,4 +10,8 @@ class LoginSelectCharacter extends OutPackage {
 	) {
 		parent::__construct(Type::LoginSelect);
 	}
+
+	public static function getFormat(): string {
+		return "I";
+	}
 }

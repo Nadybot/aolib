@@ -11,4 +11,8 @@ class PrivateChannelInviteRefused extends InPackage {
 	) {
 		parent::__construct(Type::PrivateChannelInviteRefused);
 	}
+
+	public static function getFormat(): string {
+		return "II";
+	}
 }

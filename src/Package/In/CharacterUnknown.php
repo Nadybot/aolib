@@ -10,4 +10,8 @@ class CharacterUnknown extends InPackage {
 	) {
 		parent::__construct(Type::CharacterUnknown);
 	}
+
+	public static function getFormat(): string {
+		return "I";
+	}
 }

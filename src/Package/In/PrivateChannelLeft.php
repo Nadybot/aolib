@@ -10,4 +10,8 @@ class PrivateChannelLeft extends InPackage {
 	) {
 		parent::__construct(Type::PrivateChannelLeft);
 	}
+
+	public static function getFormat(): string {
+		return "I";
+	}
 }

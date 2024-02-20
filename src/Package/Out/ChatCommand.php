@@ -12,4 +12,8 @@ class ChatCommand extends OutPackage {
 	) {
 		parent::__construct(Type::ChatCommand);
 	}
+
+	public static function getFormat(): string {
+		return "sI";
+	}
 }

@@ -10,4 +10,8 @@ class LoginError extends InPackage {
 	) {
 		parent::__construct(Type::LoginError);
 	}
+
+	public static function getFormat(): string {
+		return "S";
+	}
 }

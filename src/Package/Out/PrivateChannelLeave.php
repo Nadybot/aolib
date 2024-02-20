@@ -10,4 +10,8 @@ class PrivateChannelLeave extends OutPackage {
 	) {
 		parent::__construct(Type::PrivateChannelLeft);
 	}
+
+	public static function getFormat(): string {
+		return "I";
+	}
 }

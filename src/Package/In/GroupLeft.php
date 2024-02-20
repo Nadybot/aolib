@@ -10,4 +10,8 @@ class GroupLeft extends InPackage {
 	) {
 		parent::__construct(Type::PublicChannelLeft);
 	}
+
+	public static function getFormat(): string {
+		return "G";
+	}
 }

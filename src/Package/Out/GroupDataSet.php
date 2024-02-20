@@ -12,4 +12,8 @@ class GroupDataSet extends OutPackage {
 	) {
 		parent::__construct(Type::PublicChannelDataSet);
 	}
+
+	public static function getFormat(): string {
+		return "GIS";
+	}
 }

@@ -10,4 +10,8 @@ class LoginSeed extends InPackage {
 	) {
 		parent::__construct(Type::LoginSeed);
 	}
+
+	public static function getFormat(): string {
+		return "S";
+	}
 }

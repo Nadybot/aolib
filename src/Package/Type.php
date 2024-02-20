@@ -55,71 +55,12 @@ enum Type: int {
 			static::PublicChannelDataSet => Out\GroupDataSet::class,
 			static::PublicChannelMessage => Out\GroupMessage::class,
 			static::PublicChannelSetClientMode => Out\GroupSetClientMode::class,
-			static::ClientModeGet => Out\GetClientmode::class,
-			static::ClientModeSet => Out\SetClientmode::class,
+			static::ClientModeGet => Out\ClientmodeGet::class,
+			static::ClientModeSet => Out\ClientmodeSet::class,
 			static::Ping => Out\Pong::class,
 			static::ChatCommand => Out\ChatCommand::class,
 
 			default => throw new \InvalidArgumentException($this->name . " needs a class representation."),
-		};
-	}
-
-	public function formatOut(): string {
-		return match ($this) {
-			static::LoginSeed => "S",
-			static::LoginRequest => "ISS",
-			static::LoginSelect => "I",
-			static::CharacterLookup => "S",
-			static::PrivateMessage => "ISS",
-			static::BuddyAdd => "IS",
-			static::BuddyRemove => "I",
-			static::SetOnlineStatus => "B",
-			static::PrivateChannelInvite => "I",
-			static::PrivateChannelKick => "I",
-			static::PrivateChannelJoin => "I",
-			static::PrivateChannelLeft => "I",
-			static::PrivateChannelKickAll  => "",
-			static::PrivateChannelMessage => "ISS",
-			static::PublicChannelDataSet => "GIS",
-			static::PublicChannelMessage => "GSS",
-			static::PublicChannelSetClientMode => "GIIII",
-			static::ClientModeGet => "IG",
-			static::ClientModeSet => "IIII",
-			static::Ping => "S",
-			static::ChatCommand => "s",
-			default => throw new \InvalidArgumentException($this->name . " has no defined send format"),
-		};
-	}
-
-	public function formatIn(): string {
-		return match ($this) {
-			static::LoginSeed => "S",
-			static::LoginOK => "",
-			static::LoginError => "S",
-			static::LoginCharlist => "isib",
-			static::CharacterUnknown => "I",
-			static::CharacterName => "IS",
-			static::CharacterLookup => "IS",
-			static::PrivateMessage => "ISS",
-			static::VicinityMessage => "ISS",
-			static::BroadcastMessage => "SSS",
-			static::SimpleSystemMessage => "S",
-			static::SystemMessage => "IIIS",
-			static::BuddyAdd => "IBS",
-			static::BuddyRemove => "I",
-			static::PrivateChannelInvite => "I",
-			static::PrivateChannelKick => "I",
-			static::PrivateChannelLeft => "I",
-			static::PrivateChannelClientJoined => "II",
-			static::PrivateChannelClientLeft => "II",
-			static::PrivateChannelMessage => "IISS",
-			static::PrivateChannelInviteRefused => "II",
-			static::PublicChannelJoined => "GSIS",
-			static::PublicChannelLeft => "G",
-			static::PublicChannelMessage => "GISS",
-			static::Ping => "S",
-			static::AdmMuxInfo => "iii",
-			default => throw new \InvalidArgumentException($this->name . " has no defined parse format"),
 		};
 	}
 

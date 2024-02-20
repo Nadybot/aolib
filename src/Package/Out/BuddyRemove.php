@@ -10,4 +10,8 @@ class BuddyRemove extends OutPackage {
 	) {
 		parent::__construct(Type::BuddyRemove);
 	}
+
+	public static function getFormat(): string {
+		return "I";
+	}
 }

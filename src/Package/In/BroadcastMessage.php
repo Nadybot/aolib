@@ -12,4 +12,8 @@ class BroadcastMessage extends InPackage {
 	) {
 		parent::__construct(Type::BroadcastMessage);
 	}
+
+	public static function getFormat(): string {
+		return "SSS";
+	}
 }

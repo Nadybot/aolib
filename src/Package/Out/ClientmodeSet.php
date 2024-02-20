@@ -4,7 +4,7 @@ namespace AO\Package\Out;
 
 use AO\Package\Type;
 
-class SetClientmode extends OutPackage {
+class ClientmodeSet extends OutPackage {
 	public function __construct(
 		public int $unknown1,
 		public int $unknown2,
@@ -12,5 +12,9 @@ class SetClientmode extends OutPackage {
 		public int $unknown4,
 	) {
 		parent::__construct(Type::ClientModeSet);
+	}
+
+	public static function getFormat(): string {
+		return "IIII";
 	}
 }

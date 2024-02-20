@@ -10,4 +10,8 @@ class Pong extends OutPackage {
 	) {
 		parent::__construct(Type::Ping);
 	}
+
+	public static function getFormat(): string {
+		return "S";
+	}
 }

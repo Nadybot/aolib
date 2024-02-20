@@ -13,4 +13,8 @@ class PrivateChannelMessage extends InPackage {
 	) {
 		parent::__construct(Type::PrivateChannelMessage);
 	}
+
+	public static function getFormat(): string {
+		return "IISS";
+	}
 }

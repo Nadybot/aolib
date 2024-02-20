@@ -15,4 +15,8 @@ class CharacterName extends InPackage {
 	public function getUid(): ?int {
 		return $this->charId === 0xFFFFFFFF ? null : $this->charId;
 	}
+
+	public static function getFormat(): string {
+		return "IS";
+	}
 }

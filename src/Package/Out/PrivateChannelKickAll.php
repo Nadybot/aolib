@@ -8,4 +8,8 @@ class PrivateChannelKickAll extends OutPackage {
 	public function __construct() {
 		parent::__construct(Type::PrivateChannelKickAll);
 	}
+
+	public static function getFormat(): string {
+		return "";
+	}
 }

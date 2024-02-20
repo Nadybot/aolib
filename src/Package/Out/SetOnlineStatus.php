@@ -10,4 +10,8 @@ class SetOnlineStatus extends OutPackage {
 	) {
 		parent::__construct(Type::SetOnlineStatus);
 	}
+
+	public static function getFormat(): string {
+		return "B";
+	}
 }

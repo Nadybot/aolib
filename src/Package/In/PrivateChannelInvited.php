@@ -10,4 +10,8 @@ class PrivateChannelInvited extends InPackage {
 	) {
 		parent::__construct(Type::PrivateChannelKick);
 	}
+
+	public static function getFormat(): string {
+		return "I";
+	}
 }

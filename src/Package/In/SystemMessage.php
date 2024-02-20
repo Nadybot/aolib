@@ -13,4 +13,8 @@ class SystemMessage extends InPackage {
 	) {
 		parent::__construct(Type::SystemMessage);
 	}
+
+	public static function getFormat(): string {
+		return "IIIS";
+	}
 }

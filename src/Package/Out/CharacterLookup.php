@@ -10,4 +10,8 @@ class CharacterLookup extends OutPackage {
 	) {
 		parent::__construct(Type::CharacterLookup);
 	}
+
+	public static function getFormat(): string {
+		return "S";
+	}
 }

@@ -63,6 +63,8 @@ abstract class BasePackage implements Stringable {
 		);
 	}
 
+	abstract public static function getFormat(): string;
+
 	/** @return list<bool|int|string|string[]|int[]|GroupId> */
 	protected function getPackageValues(): array {
 		$result = [];
@@ -122,6 +124,4 @@ abstract class BasePackage implements Stringable {
 				throw new Exception("Unknown format '{$format}' encountered when encoding " . self::class);
 		}
 	}
-
-	abstract protected function getFormat(): string;
 }

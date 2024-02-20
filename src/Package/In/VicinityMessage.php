@@ -12,4 +12,8 @@ class VicinityMessage extends InPackage {
 	) {
 		parent::__construct(Type::VicinityMessage);
 	}
+
+	public static function getFormat(): string {
+		return "ISS";
+	}
 }

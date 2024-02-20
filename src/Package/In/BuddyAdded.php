@@ -12,4 +12,8 @@ class BuddyAdded extends InPackage {
 	) {
 		parent::__construct(Type::BuddyAdd);
 	}
+
+	public static function getFormat(): string {
+		return "IBS";
+	}
 }

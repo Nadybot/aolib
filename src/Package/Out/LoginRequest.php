@@ -15,4 +15,8 @@ class LoginRequest extends OutPackage {
 	) {
 		parent::__construct(Type::LoginRequest);
 	}
+
+	public static function getFormat(): string {
+		return "ISS";
+	}
 }

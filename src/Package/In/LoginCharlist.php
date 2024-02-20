@@ -19,4 +19,8 @@ class LoginCharlist extends InPackage {
 	) {
 		parent::__construct(Type::LoginCharlist);
 	}
+
+	public static function getFormat(): string {
+		return "isib";
+	}
 }

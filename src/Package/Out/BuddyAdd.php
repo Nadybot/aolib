@@ -11,4 +11,8 @@ class BuddyAdd extends OutPackage {
 	) {
 		parent::__construct(Type::BuddyAdd);
 	}
+
+	public static function getFormat(): string {
+		return "IS";
+	}
 }

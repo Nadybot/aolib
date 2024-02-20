@@ -36,9 +36,7 @@ class Parser {
 		if (!is_a($class, BasePackage::class, true)) {
 			throw new \Exception("Requested class {$class} is not an AO package");
 		}
-		$format = ($package instanceof BinaryPackageIn)
-			? $package->type->formatIn()
-			: $package->type->formatOut();
+		$format = $class::getFormat();
 
 		$args = [];
 		if (isset($package->body)) {

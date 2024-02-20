@@ -11,4 +11,8 @@ class PrivateChannelClientJoined extends InPackage {
 	) {
 		parent::__construct(Type::PrivateChannelClientJoined);
 	}
+
+	public static function getFormat(): string {
+		return "II";
+	}
 }

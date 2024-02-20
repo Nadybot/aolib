@@ -14,4 +14,8 @@ class GroupSetClientMode extends OutPackage {
 	) {
 		parent::__construct(Type::PublicChannelSetClientMode);
 	}
+
+	public static function getFormat(): string {
+		return "GIIII";
+	}
 }

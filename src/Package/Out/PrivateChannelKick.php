@@ -10,4 +10,8 @@ class PrivateChannelKick extends OutPackage {
 	) {
 		parent::__construct(Type::PrivateChannelKick);
 	}
+
+	public static function getFormat(): string {
+		return "I";
+	}
 }

@@ -12,4 +12,8 @@ class PrivateChannelMessage extends OutPackage {
 	) {
 		parent::__construct(Type::PrivateChannelMessage);
 	}
+
+	public static function getFormat(): string {
+		return "ISS";
+	}
 }

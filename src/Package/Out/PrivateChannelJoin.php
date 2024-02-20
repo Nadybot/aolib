@@ -10,4 +10,8 @@ class PrivateChannelJoin extends OutPackage {
 	) {
 		parent::__construct(Type::PrivateChannelJoin);
 	}
+
+	public static function getFormat(): string {
+		return "I";
+	}
 }

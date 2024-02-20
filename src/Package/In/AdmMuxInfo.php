@@ -17,4 +17,8 @@ class AdmMuxInfo extends InPackage {
 	) {
 		parent::__construct(Type::AdmMuxInfo);
 	}
+
+	public static function getFormat(): string {
+		return "iii";
+	}
 }

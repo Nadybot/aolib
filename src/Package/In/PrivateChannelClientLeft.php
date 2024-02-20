@@ -11,4 +11,8 @@ class PrivateChannelClientLeft extends InPackage {
 	) {
 		parent::__construct(Type::PrivateChannelClientLeft);
 	}
+
+	public static function getFormat(): string {
+		return "II";
+	}
 }

@@ -13,4 +13,8 @@ class GroupJoined extends InPackage {
 	) {
 		parent::__construct(Type::PublicChannelJoined);
 	}
+
+	public static function getFormat(): string {
+		return "GSIS";
+	}
 }

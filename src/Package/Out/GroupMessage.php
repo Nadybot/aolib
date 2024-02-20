@@ -12,4 +12,8 @@ class GroupMessage extends OutPackage {
 	) {
 		parent::__construct(Type::PublicChannelMessage);
 	}
+
+	public static function getFormat(): string {
+		return "GSS";
+	}
 }

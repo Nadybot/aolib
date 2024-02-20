@@ -14,4 +14,8 @@ class GroupMessage extends InPackage {
 	) {
 		parent::__construct(Type::PublicChannelMessage);
 	}
+
+	public static function getFormat(): string {
+		return "GISS";
+	}
 }
