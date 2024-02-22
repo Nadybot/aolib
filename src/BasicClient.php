@@ -191,7 +191,7 @@ class BasicClient {
 			);
 		}
 		$this->logger?->debug("Received login seed {seed}, calculating reply", ["seed" => $loginSeed->serverSeed]);
-		$key = TEA\TEA::generateLoginKey(
+		$key = Encryption\TEA::generateLoginKey(
 			serverKey: $loginSeed->serverSeed,
 			username: $username,
 			password: $password,

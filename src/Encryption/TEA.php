@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace AO\TEA;
+namespace AO\Encryption;
 
 use function Safe\{pack, unpack};
 
