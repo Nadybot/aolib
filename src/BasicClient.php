@@ -164,10 +164,15 @@ class BasicClient {
 	}
 
 	public function write(Package\Out $package): void {
+		$this->logger?->debug("Sending package {package}", [
+			"package" => $package,
+		]);
 		$binPackage = $package->toBinaryPackage();
 		if ($package instanceof Package\Out\RateLimited) {
+			$this->logger?->debug("Sending rate-limited package via bucket-queue");
 			$this->bucket->take(callback: fn () => $this->connection->write($binPackage->toBinary()));
 		} else {
+			$this->logger?->debug("Sending non-rate-limited package instantly");
 			$this->connection->write($binPackage->toBinary());
 		}
 	}
