@@ -1,13 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace AO;
+namespace AO\Client;
 
 use AO\Package\{In, Out};
+use AO\{AccountFrozenException, CharacterNotFoundException, Connection, Encryption, Group, LoginException, Package, Parser, Utils, WrongPacketOrderException};
 use Nadylib\LeakyBucket\LeakyBucket;
 use Psr\Log\LoggerInterface;
 use Revolt\EventLoop;
 
-class BasicClient {
+class Basic {
 	public const UID_NONE = 0xFFFFFFFF;
 
 	/** @var array<int,string> */

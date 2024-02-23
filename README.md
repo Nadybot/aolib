@@ -30,7 +30,7 @@ $logger->pushHandler(new StreamHandler("php://stdout", Level::Debug));
 $logger->pushProcessor(new PsrLogMessageProcessor(null, true));
 
 $socket = connect("chat.d1.funcom.com:7105");
-$client = new \AO\BasicClient(
+$client = new \AO\Client\Basic(
     $logger,
     new \AO\Connection($logger, $socket, $socket);
     \AO\Parser::createDefault($logger)
@@ -62,6 +62,42 @@ This is the most basic interface:
 
 ```php
 $client->write(new Out\Tell(charId: 1234, message: "Hello!"));
+```
+
+## Multi character usage
+
+```php
+<?php declare(strict_types=1);
+
+use AO\Client\{Multi, WorkerConfig};
+
+require_once __DIR__ . "/../vendor/autoload.php";
+
+$client = new Multi(
+    mainCharacter: "Char1",
+    workers: [
+        new WorkerConfig(
+            dimension: 5,
+            username: "login1",
+            password: "password1",
+            character: "Char1",
+        ),
+        new WorkerConfig(
+            dimension: 5,
+            username: "login2",
+            password: "password2",
+            character: "Char2",
+        ),
+    ]
+);
+
+$client->login();
+
+while (($package = $client->read()) !== null) {
+    // Do something
+}
+
+EventLoop::run();
 ```
 
 ## Running tests
