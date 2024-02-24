@@ -7,6 +7,8 @@ use function Amp\Socket\connect;
 use function Amp\{async, delay};
 
 use AO\{Package, Parser, Utils};
+use InvalidArgumentException;
+use Nadylib\LeakyBucket\LeakyBucket;
 use Psr\Log\LoggerInterface;
 use Revolt\EventLoop;
 use Revolt\EventLoop\Suspension;
@@ -24,16 +26,27 @@ class Multi {
 	/** @var Suspension<?WorkerPackage> */
 	private ?Suspension $queueProcessor = null;
 
-	/** @param WorkerConfig[] $workers */
+	/**
+	 * @param WorkerConfig[] $workers
+	 *
+	 * @phpstan-param non-empty-list<WorkerConfig> $workers
+	 */
 	public function __construct(
-		private readonly ?string $mainCharacter=null,
+		array $workers,
+		public readonly ?string $mainCharacter=null,
 		private ?LoggerInterface $logger=null,
-		array $workers=[],
+		private ?Parser $parser=null,
+		private ?LeakyBucket $bucket=null,
 	) {
-		foreach ($workers as $workerConfig) {
-			if ($workerConfig instanceof WorkerConfig) {
-				$this->configs []= $workerConfig;
+		// @phpstan-ignore-next-line
+		if (empty($workers)) {
+			throw new InvalidArgumentException(__CLASS__ . "::" . __FUNCTION__ . "(\$workers\) must me non-empty");
+		}
+		foreach ($workers as $key => $workerConfig) {
+			if (!($workerConfig instanceof WorkerConfig)) {
+				throw new InvalidArgumentException(__CLASS__ . "::" . __FUNCTION__ . "(\$workers[\$key\]\) is not a WorkerConfig");
 			}
+			$this->configs []= $workerConfig;
 		}
 	}
 
@@ -203,12 +216,13 @@ class Multi {
 		$this->logger?->info("Connected to {server}", ["server" => $config->getServer()]);
 		$client = new Basic(
 			logger: $this->logger,
+			parser: $this->parser ?? Parser::createDefault(),
+			bucket: $this->bucket,
 			connection: new \AO\Connection(
 				logger: $this->logger,
 				reader: $connection,
 				writer: $connection
 			),
-			parser: Parser::createDefault(),
 		);
 		$client->login(
 			username: $config->username,
