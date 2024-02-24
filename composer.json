@@ -44,7 +44,7 @@
     "tests": [
       "phpunit -c phpunit.xml",
       "phpstan analyse --memory-limit 512M --no-progress --no-ansi -c phpstan.neon",
-      "phpcs --no-colors --report=checkstyle --standard=style/Nadybot/ruleset.xml -q src"
+      "phpcs --no-colors --report=checkstyle --standard=style/Nadybot/ruleset.xml -q src tests"
     ]
   }
 }
