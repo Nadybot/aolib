@@ -50,6 +50,16 @@ class Multi {
 		}
 	}
 
+	public function getStatistics(): Statistics {
+		return array_reduce(
+			$this->connections,
+			function (Statistics $stats, Basic $client): Statistics {
+				return $stats->add($client->getStatistics());
+			},
+			new Statistics()
+		);
+	}
+
 	public function login(): void {
 		$futures = [];
 		foreach ($this->configs as $config) {

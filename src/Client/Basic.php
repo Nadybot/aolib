@@ -37,6 +37,10 @@ class Basic {
 		$this->bucket = $bucket ?? new LeakyBucket(size: 5, refillDelay: 1.0);
 	}
 
+	public function getStatistics(): Statistics {
+		return $this->connection->getStatistics();
+	}
+
 	/**
 	 * Get infomation about a public group we're in
 	 *

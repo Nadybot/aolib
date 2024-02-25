@@ -6,6 +6,7 @@ use function Safe\unpack;
 use Amp\ByteStream\{ReadableStream, WritableStream};
 
 use Amp\Cancellation;
+use AO\Client\Statistics;
 use AO\Package\Type;
 use Closure;
 use Psr\Log\LoggerInterface;
@@ -19,13 +20,20 @@ use Psr\Log\LoggerInterface;
  */
 final class Connection implements \IteratorAggregate, WritableStream {
 	private Tokenizer $tokenizer;
+	private Statistics $statistics;
 
 	public function __construct(
 		ReadableStream $reader,
 		private WritableStream $writer,
 		private ?LoggerInterface $logger=null,
+		?Statistics $statistics=null,
 	) {
 		$this->tokenizer = new Tokenizer($reader);
+		$this->statistics = $statistics ?? new Statistics();
+	}
+
+	public function getStatistics(): Statistics {
+		return clone $this->statistics;
 	}
 
 	public function read(?Cancellation $cancellation=null): ?BinaryPackage\In {
@@ -33,6 +41,8 @@ final class Connection implements \IteratorAggregate, WritableStream {
 		if ($binPackage === null) {
 			return null;
 		}
+		$this->statistics->packagesRead++;
+		$this->statistics->bytesRead += \strlen($binPackage);
 		$header = unpack("ntype/nlength", $binPackage);
 		$package = new BinaryPackage\In(
 			type: Type::from($header['type']),
@@ -63,9 +73,17 @@ final class Connection implements \IteratorAggregate, WritableStream {
 	}
 
 	public function write(string|BinaryPackage\Out $bytes): void {
+		$type = 0;
 		if ($bytes instanceof BinaryPackage\Out) {
+			$type = $bytes->type->value;
 			$bytes = $bytes->toBinary();
+		} else {
+			$unpacked = unpack("ntype", $bytes);
+			$type = (int)$unpacked["type"];
 		}
+		$this->statistics->bytesWritten += \strlen($bytes);
+		$this->statistics->packagesWritten[$type] ??= 0;
+		$this->statistics->packagesWritten[$type]++;
 		$this->writer->write($bytes);
 	}
 
