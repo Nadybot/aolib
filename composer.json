@@ -16,7 +16,8 @@
     "thecodingmachine/safe": "^2.0",
     "psr/log": "^3.0",
     "amphp/file": "^3.0",
-    "nadylib/leaky-bucket": "dev-main"
+    "nadylib/leaky-bucket": "dev-main",
+    "amphp/pipeline": "^1.1"
   },
   "autoload": {
     "psr-4": {

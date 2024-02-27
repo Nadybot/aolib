@@ -4,9 +4,11 @@ namespace AO\Client;
 
 use AO\Package\{In, Out};
 use AO\{AccountFrozenException, CharacterNotFoundException, Connection, Encryption, Group, LoginException, Package, Parser, Utils, WrongPacketOrderException};
+use Closure;
 use Nadylib\LeakyBucket\LeakyBucket;
 use Psr\Log\LoggerInterface;
 use Revolt\EventLoop;
+use Throwable;
 
 class Basic {
 	public const UID_NONE = 0xFFFFFFFF;
@@ -26,7 +28,23 @@ class Basic {
 	/** @var array<string,Group> */
 	private array $publicGroups = [];
 
-	private LeakyBucket $bucket;
+	/**
+	 * True when the bot has finished receiving the initial
+	 * buddylist updates which don't correspond to state changes.
+	 */
+	private bool $isReady = false;
+
+	/**
+	 * A list of callbacks to call when the ready status flips
+	 * from false to true
+	 *
+	 * @var Closure[]
+	 */
+	private array $readyListeners = [];
+
+	private readonly LeakyBucket $bucket;
+
+	private ?string $loggedInChar = null;
 
 	public function __construct(
 		private Connection $connection,
@@ -39,6 +57,21 @@ class Basic {
 
 	public function getStatistics(): Statistics {
 		return $this->connection->getStatistics();
+	}
+
+	public function isReady(): bool {
+		return $this->isReady;
+	}
+
+	/**
+	 * Request a callback when the connection is ready to
+	 * process packages and has finished receiving the
+	 * initial buddylist updates
+	 *
+	 * @phpstan-param Closure():mixed $callback
+	 */
+	public function onReady(Closure $callback): void {
+		$this->readyListeners []= $callback;
 	}
 
 	/**
@@ -187,6 +220,7 @@ class Basic {
 	}
 
 	public function login(string $username, string $password, string $character): void {
+		$this->loggedInChar = null;
 		$this->logger?->debug("Logging in with username {$username}", ["username" => $username]);
 		$this->publicGroups = [];
 		$this->buddylist = [];
@@ -254,63 +288,110 @@ class Basic {
 				"Expected " . In\LoginOk::class . ", got " . get_class($response)
 			);
 		}
+		$this->loggedInChar = $character;
 	}
 
 	/**
 	 * Some packages trigger internal behaviour,
-	 * like adding buddys to the buddylist, or tracking
+	 * like adding buddies to the buddylist, or tracking
 	 * public groups the bot is in. This happens here.
-	 *
-	 * @internal description
 	 */
 	protected function handleIncomingPackage(Package\In $package): void {
 		if ($package instanceof In\CharacterLookupResult) {
-			$this->logger?->debug("In\\ClientLookup received, caching uid <=> name lookups");
-			$this->nameToUid[$package->name] = $package->charId;
-			$this->uidToName[$package->charId] = $package->name;
-			$suspended = $this->pendingUidLookups[$package->name] ?? [];
-			unset($this->pendingUidLookups[$package->name]);
-			$this->logger?->debug("{num_waiting} clients waiting for lookup result", [
-				"num_waiting" => count($suspended),
-			]);
-			$numFiber = 1;
-			foreach ($suspended as $thread) {
-				$this->logger?->debug("Resuming fiber #{fiber}", ["fiber" => $numFiber++]);
-				$thread->resume($package->getUid());
-			}
+			$this->handleCharacterLookupResult($package);
 		} elseif ($package instanceof In\CharacterName) {
-			$this->logger?->debug("In\\ClientName received, caching {uid} <=> \"{name}\" lookups", [
-				"uid" => $package->getUid(),
-				"name" => $package->name,
-			]);
-			$this->nameToUid[$package->name] = $package->charId;
-			$this->uidToName[$package->charId] = $package->name;
+			$this->handleCharacterName($package);
 		} elseif ($package instanceof In\BuddyAdded) {
-			$this->logger?->debug("In\\BuddyAdded received, putting into buddylist with status \"{online}\"", [
-				"online" => ($package->online ? "online" : "offline"),
-			]);
-			$this->buddylist[$package->charId] = $package->online;
+			$this->handleBuddyAdded($package);
 		} elseif ($package instanceof In\BuddyRemoved) {
-			$this->logger?->debug("In\\BuddyRemoved received, removing from buddylist");
-			unset($this->buddylist[$package->charId]);
+			$this->handleBuddyRemoved($package);
 		} elseif ($package instanceof In\GroupJoined) {
-			$group = new Group(
-				id: $package->groupId,
-				name: $package->groupName,
-				flags: $package->flags
-			);
-			$this->logger?->debug("New group {group} announced", [
-				"group" => $group,
-			]);
-			$this->publicGroups[$package->groupName] = $group;
+			$this->handleGroupJoined($package);
 		} elseif ($package instanceof In\GroupLeft) {
-			foreach ($this->publicGroups as $name => $group) {
-				if ($package->groupId->sameAs($group->id)) {
-					$this->logger?->debug("Removing the group {group} from our list", [
-						"group" => $name,
-					]);
-					unset($this->publicGroups[$name]);
-				}
+			$this->handleGroupLeft($package);
+		}
+	}
+
+	protected function handleCharacterLookupResult(In\CharacterLookupResult $package): void {
+		$this->logger?->debug("In\\ClientLookup received, caching uid <=> name lookups");
+		$this->nameToUid[$package->name] = $package->charId;
+		$this->uidToName[$package->charId] = $package->name;
+		$suspended = $this->pendingUidLookups[$package->name] ?? [];
+		unset($this->pendingUidLookups[$package->name]);
+		$this->logger?->debug("{num_waiting} clients waiting for lookup result", [
+			"num_waiting" => count($suspended),
+		]);
+		$numFiber = 1;
+		foreach ($suspended as $thread) {
+			$this->logger?->debug("Resuming fiber #{fiber}", ["fiber" => $numFiber++]);
+			$thread->resume($package->getUid());
+		}
+	}
+
+	protected function handleCharacterName(In\CharacterName $package): void {
+		$this->logger?->debug("In\\ClientName received, caching {uid} <=> \"{name}\" lookups", [
+			"uid" => $package->getUid(),
+			"name" => $package->name,
+		]);
+		$this->nameToUid[$package->name] = $package->charId;
+		$this->uidToName[$package->charId] = $package->name;
+	}
+
+	protected function handleBuddyAdded(In\BuddyAdded $package): void {
+		$this->logger?->debug("In\\BuddyAdded received, putting into buddylist with status \"{online}\"", [
+			"online" => ($package->online ? "online" : "offline"),
+		]);
+		$this->buddylist[$package->charId] = $package->online;
+	}
+
+	protected function handleBuddyRemoved(In\BuddyRemoved $package): void {
+		$this->logger?->debug("In\\BuddyRemoved received, removing from buddylist");
+		unset($this->buddylist[$package->charId]);
+	}
+
+	protected function handleGroupJoined(In\GroupJoined $package): void {
+		if (!$this->isReady) {
+			EventLoop::defer($this->triggerOnReady(...));
+		}
+		$group = new Group(
+			id: $package->groupId,
+			name: $package->groupName,
+			flags: $package->flags
+		);
+		$this->logger?->debug("New group {group} announced", [
+			"group" => $group,
+		]);
+		$this->publicGroups[$package->groupName] = $group;
+	}
+
+	protected function handleGroupLeft(In\GroupLeft $package): void {
+		foreach ($this->publicGroups as $name => $group) {
+			if ($package->groupId->sameAs($group->id)) {
+				$this->logger?->debug("Removing the group {group} from our list", [
+					"group" => $name,
+				]);
+				unset($this->publicGroups[$name]);
+			}
+		}
+	}
+
+	protected function triggerOnReady(): void {
+		$this->isReady = true;
+		$this->logger?->notice("{charName} is now ready", [
+			"charName" => $this->loggedInChar,
+		]);
+		while (null !== ($callback = array_shift($this->readyListeners))) {
+			$this->logger?->debug("Calling {closure}", [
+				"closure" => Utils::closureToString($callback),
+			]);
+			try {
+				$callback();
+			} catch (Throwable $e) {
+				$this->logger?->error("Error calling {closure}: {error}", [
+					"closure" => Utils::closureToString($callback),
+					"error" => $e->getMessage(),
+					"exception" => $e,
+				]);
 			}
 		}
 	}

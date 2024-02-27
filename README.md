@@ -93,7 +93,7 @@ $client = new Multi(
 
 $client->login();
 
-while (($package = $client->read()) !== null) {
+foreach ($client->getPackages() as $package) {
     // Do something
 }
 

@@ -6,12 +6,14 @@ use function Amp\Future\awaitAll;
 use function Amp\Socket\connect;
 use function Amp\{async, delay};
 
+use Amp\Pipeline\{ConcurrentIterator, Queue};
 use AO\{Package, Parser, Utils};
+use Closure;
 use InvalidArgumentException;
 use Nadylib\LeakyBucket\LeakyBucket;
 use Psr\Log\LoggerInterface;
 use Revolt\EventLoop;
-use Revolt\EventLoop\Suspension;
+use Throwable;
 
 class Multi {
 	/** @var array<string,Basic> */
@@ -20,11 +22,22 @@ class Multi {
 	/** @var WorkerConfig[] */
 	private array $configs = [];
 
-	/** @var list<?WorkerPackage> */
-	private array $readQueue = [];
+	/** @var Queue<WorkerPackage> */
+	private readonly Queue $readQueue;
 
-	/** @var Suspension<?WorkerPackage> */
-	private ?Suspension $queueProcessor = null;
+	/**
+	 * A list of callbacks to call when the ready status flips
+	 * from false to true
+	 *
+	 * @var Closure[]
+	 */
+	private array $readyListeners = [];
+
+	/**
+	 * True when the bot has finished receiving the initial
+	 * buddylist updates which don't correspond to state changes.
+	 */
+	private bool $isReady = false;
 
 	/**
 	 * @param WorkerConfig[] $workers
@@ -38,6 +51,7 @@ class Multi {
 		private ?Parser $parser=null,
 		private ?LeakyBucket $bucket=null,
 	) {
+		$this->readQueue = new Queue(0);
 		// @phpstan-ignore-next-line
 		if (empty($workers)) {
 			throw new InvalidArgumentException(__CLASS__ . "::" . __FUNCTION__ . "(\$workers\) must me non-empty");
@@ -48,6 +62,21 @@ class Multi {
 			}
 			$this->configs []= $workerConfig;
 		}
+	}
+
+	public function isReady(): bool {
+		return $this->isReady;
+	}
+
+	/**
+	 * Request a callback when the connection is ready to
+	 * process packages and has finished receiving the
+	 * initial buddylist updates
+	 *
+	 * @phpstan-param Closure():mixed $callback
+	 */
+	public function onReady(Closure $callback): void {
+		$this->readyListeners []= $callback;
 	}
 
 	public function getStatistics(): Statistics {
@@ -61,6 +90,7 @@ class Multi {
 	}
 
 	public function login(): void {
+		$this->isReady = false;
 		$futures = [];
 		foreach ($this->configs as $config) {
 			$futures []= async($this->clientLogin(...), $config);
@@ -72,18 +102,20 @@ class Multi {
 			throw $exception;
 		}
 		$this->logger?->notice("All workers logged in successfully.");
+		$numReady = 0;
 		foreach ($workers[1] as $worker) {
 			$this->connections[$worker->config->character] = $worker->client;
 			async($this->workerLoop(...), $worker);
+			$worker->client->onReady(function () use (&$numReady): void {
+				$numReady++;
+				if ($numReady >= count($this->configs)) {
+					$this->triggerOnReady();
+				}
+			});
 		}
 		EventLoop::onSignal(SIGINT, function (string $cancellation) {
 			foreach ($this->connections as $id => $connection) {
 				$connection->disconnect();
-			}
-			if (isset($this->queueProcessor)) {
-				$this->queueProcessor->resume(null);
-			} else {
-				$this->readQueue []= null;
 			}
 			EventLoop::cancel($cancellation);
 		});
@@ -93,16 +125,9 @@ class Multi {
 		$this->getBestWorker()?->write($package);
 	}
 
-	public function read(): ?WorkerPackage {
-		if (count($this->readQueue)) {
-			return array_shift($this->readQueue);
-		}
-		$this->queueProcessor = EventLoop::getSuspension();
-		$this->logger?->debug("Suspending read thread");
-		$package = $this->queueProcessor->suspend();
-		$this->logger?->debug("Read thread resumed");
-		$this->queueProcessor = null;
-		return $package;
+	/** @return ConcurrentIterator<WorkerPackage> */
+	public function getPackages(): ConcurrentIterator {
+		return $this->readQueue->iterate();
 	}
 
 	/**
@@ -179,21 +204,31 @@ class Multi {
 		return $online ?? $this->getBestWorker($worker)?->isOnline($uid, $cacheOnly);
 	}
 
-	private function getBestWorker(?string $worker=null): ?Basic {
-		$worker ??= $this->mainCharacter ?? array_keys($this->connections)[0];
-		return $this->connections[$worker] ?? null;
+	protected function triggerOnReady(): void {
+		$this->isReady = true;
+		$this->logger?->notice("Bot is now fully ready");
+		while (null !== ($callback = array_shift($this->readyListeners))) {
+			$this->logger?->debug("Calling {closure}", [
+				"closure" => Utils::closureToString($callback),
+			]);
+			try {
+				$callback();
+			} catch (Throwable $e) {
+				$this->logger?->error("Error calling {closure}: {error}", [
+					"closure" => Utils::closureToString($callback),
+					"error" => $e->getMessage(),
+					"exception" => $e,
+				]);
+			}
+		}
 	}
 
-	private function reportReadPackage(?WorkerPackage $package): void {
-		if (isset($this->queueProcessor)) {
-			$queueProcessor = $this->queueProcessor;
-			$this->queueProcessor = null;
-			$this->logger?->debug("Resuming read thread");
-			$queueProcessor->resume($package);
-		} elseif (isset($package)) {
-			$this->logger?->debug("Queueing read package into read queue");
-			$this->readQueue []= $package;
+	private function getBestWorker(?string $worker=null): ?Basic {
+		$worker ??= $this->mainCharacter ?? array_keys($this->connections)[0];
+		if (!isset($this->connections[$worker])) {
+			$worker = array_keys($this->connections)[0];
 		}
+		return $this->connections[$worker] ?? null;
 	}
 
 	private function workerLoop(WorkerThread $worker): void {
@@ -203,9 +238,13 @@ class Multi {
 				package: $package,
 				client: $worker->client
 			);
-			$this->reportReadPackage($workerPackage);
+			if (!$this->readQueue->isComplete()) {
+				$this->readQueue->push($workerPackage);
+			}
 		}
-		$this->reportReadPackage(null);
+		if (!$this->readQueue->isComplete()) {
+			$this->readQueue->complete();
+		}
 	}
 
 	private function clientLogin(WorkerConfig $config): WorkerThread {
