@@ -5,6 +5,7 @@ namespace AO\Client;
 use function Amp\Future\awaitAll;
 use function Amp\Socket\connect;
 use function Amp\{async, delay};
+use function Amp\File\write;
 
 use Amp\Pipeline\{ConcurrentIterator, Queue};
 use AO\{Package, Parser, Utils};
@@ -66,6 +67,30 @@ class Multi {
 
 	public function isReady(): bool {
 		return $this->isReady;
+	}
+
+	/**
+	 * Get the UNIX timestamp when the last package was received by each worker
+	 * @return array<string,float>
+	 */
+	public function getLastPackageReceived(): array {
+		$result = [];
+		foreach ($this->connections as $name => $connection) {
+			$result[$name] = $connection->getLastPackageReceived();
+		}
+		return $result;
+	}
+
+	/**
+	 * Get the UNIX timestamp when the last ping package was received by each worker
+	 * @return array<string,float>
+	 */
+	public function getLastPingReceived(): array {
+		$result = [];
+		foreach ($this->connections as $name => $connection) {
+			$result[$name] = $connection->getLastPingReceived();
+		}
+		return $result;
 	}
 
 	/**
