@@ -29,7 +29,7 @@ class Basic {
 	private array $publicGroups = [];
 
 	private float $lastPackage = 0;
-	private float $lastPing = 0;
+	private float $lastPong = 0;
 
 	/**
 	 * True when the bot has finished receiving the initial
@@ -72,8 +72,8 @@ class Basic {
 	}
 
 	/** Get the UNIX timestamp when the last ping package was received */
-	public function getLastPingReceived(): float {
-		return $this->lastPing;
+	public function getLastPongSent(): float {
+		return $this->lastPong;
 	}
 
 	/**
@@ -211,9 +211,6 @@ class Basic {
 		}
 		$this->lastPackage = microtime(true);
 		$package = $this->parser->parseBinaryPackage($binPackage);
-		if ($package instanceof Package\In\Ping) {
-			$this->lastPing = microtime(true);
-		}
 		$this->handleIncomingPackage($package);
 		return $package;
 	}
@@ -229,6 +226,9 @@ class Basic {
 		} else {
 			$this->logger?->debug("Sending non-rate-limited package instantly");
 			$this->connection->write($binPackage->toBinary());
+		}
+		if ($package instanceof Package\Out\Pong) {
+			$this->lastPong = microtime(true);
 		}
 	}
 
