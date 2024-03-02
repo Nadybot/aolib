@@ -28,6 +28,9 @@ class Basic {
 	/** @var array<string,Group> */
 	private array $publicGroups = [];
 
+	private float $lastPackage = 0;
+	private float $lastPing = 0;
+
 	/**
 	 * True when the bot has finished receiving the initial
 	 * buddylist updates which don't correspond to state changes.
@@ -61,6 +64,16 @@ class Basic {
 
 	public function isReady(): bool {
 		return $this->isReady;
+	}
+
+	/** Get the UNIX timestamp when the last package was received */
+	public function getLastPackageReceived(): float {
+		return $this->lastPackage;
+	}
+
+	/** Get the UNIX timestamp when the last ping package was received */
+	public function getLastPingReceived(): float {
+		return $this->lastPing;
 	}
 
 	/**
@@ -196,7 +209,11 @@ class Basic {
 			$this->logger?->info("Stream has closed the connection");
 			return null;
 		}
+		$this->lastPackage = microtime(true);
 		$package = $this->parser->parseBinaryPackage($binPackage);
+		if ($package instanceof Package\In\Ping) {
+			$this->lastPing = microtime(true);
+		}
 		$this->handleIncomingPackage($package);
 		return $package;
 	}
