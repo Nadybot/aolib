@@ -7,7 +7,7 @@ use function Amp\Socket\connect;
 use function Amp\{async, delay};
 
 use Amp\Pipeline\{ConcurrentIterator, Queue};
-use AO\{Package, Parser, Utils};
+use AO\{Group, Package, Parser, Utils};
 use Closure;
 use InvalidArgumentException;
 use Nadylib\LeakyBucket\LeakyBucket;
@@ -62,6 +62,17 @@ class Multi {
 			}
 			$this->configs []= $workerConfig;
 		}
+	}
+
+	/**
+	 * Get infomation about a public group we're in
+	 *
+	 * @param string|Group\Id $id the name or id of the group
+	 *
+	 * @return Group|null Information about the group, or NULL, if we're not in it
+	 */
+	public function getGroup(string|Group\Id $id): ?Group {
+		return $this->getBestWorker()?->getGroup($id);
 	}
 
 	public function isReady(): bool {
