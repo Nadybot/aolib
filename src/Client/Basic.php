@@ -2,12 +2,14 @@
 
 namespace AO\Client;
 
+use function Amp\delay;
 use AO\Package\{In, Out};
-use AO\{AccountFrozenException, CharacterNotFoundException, Connection, Encryption, Group, LoginException, Package, Parser, Utils, WrongPacketOrderException};
+use AO\{AccountFrozenException, AccountUnfreezer, CharacterNotFoundException, Connection, Encryption, Group, LoginException, Package, Parser, Utils, WrongPacketOrderException};
 use Closure;
 use Nadylib\LeakyBucket\LeakyBucket;
 use Psr\Log\LoggerInterface;
 use Revolt\EventLoop;
+
 use Throwable;
 
 class Basic {
@@ -54,6 +56,7 @@ class Basic {
 		private Parser $parser,
 		private ?LoggerInterface $logger=null,
 		?LeakyBucket $bucket=null,
+		private ?AccountUnfreezer $accountUnfreezer=null,
 	) {
 		$this->bucket = $bucket ?? new LeakyBucket(size: 5, refillDelay: 1.0);
 	}
@@ -268,6 +271,16 @@ class Basic {
 		if ($response instanceof In\LoginError) {
 			$errorMsgs = explode("|", $response->error);
 			if (count($errorMsgs) === 3 && $errorMsgs[2] === "/Account system denies login") {
+				if (isset($this->accountUnfreezer) && $this->accountUnfreezer->unfreeze()) {
+					$this->logger?->notice("Account {account} successfully unfrozen, waiting {delay}s", [
+						"account" => $username,
+						"delay" => 5,
+					]);
+					$this->accountUnfreezer = null;
+					delay(5);
+					$this->login(...func_get_args());
+					return;
+				}
 				$parts = explode(": ", $errorMsgs[0] ?? "");
 				throw new AccountFrozenException($parts[1] ?? "");
 			}
@@ -318,8 +331,8 @@ class Basic {
 			$this->handleCharacterLookupResult($package);
 		} elseif ($package instanceof In\CharacterName) {
 			$this->handleCharacterName($package);
-		} elseif ($package instanceof In\BuddyAdded) {
-			$this->handleBuddyAdded($package);
+		} elseif ($package instanceof In\BuddyState) {
+			$this->handleBuddyState($package);
 		} elseif ($package instanceof In\BuddyRemoved) {
 			$this->handleBuddyRemoved($package);
 		} elseif ($package instanceof In\GroupJoined) {
@@ -354,8 +367,8 @@ class Basic {
 		$this->uidToName[$package->charId] = $package->name;
 	}
 
-	protected function handleBuddyAdded(In\BuddyAdded $package): void {
-		$this->logger?->debug("In\\BuddyAdded received, putting into buddylist with status \"{online}\"", [
+	protected function handleBuddyState(In\BuddyState $package): void {
+		$this->logger?->debug("In\\BuddyState received, putting into buddylist with status \"{online}\"", [
 			"online" => ($package->online ? "online" : "offline"),
 		]);
 		$this->buddylist[$package->charId] = $package->online;

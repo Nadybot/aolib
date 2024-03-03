@@ -4,7 +4,7 @@ namespace AO\Package\In;
 
 use AO\Package;
 
-class BuddyAdded extends Package\In {
+class BuddyState extends Package\In {
 	public function __construct(
 		public int $charId,
 		public bool $online,

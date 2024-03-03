@@ -18,7 +18,7 @@ enum Type: int {
 			static::BroadcastMessage => In\BroadcastMessage::class,
 			static::SimpleSystemMessage => In\SimpleSystemMessage::class,
 			static::SystemMessage => In\SimpleSystemMessage::class,
-			static::BuddyAdd => In\BuddyAdded::class,
+			static::BuddyAdd => In\BuddyState::class,
 			static::BuddyRemove => In\BuddyRemoved::class,
 			static::PrivateChannelInvite => In\PrivateChannelInvited::class,
 			static::PrivateChannelKick => In\PrivateChannelKicked::class,

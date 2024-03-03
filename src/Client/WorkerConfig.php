@@ -6,10 +6,12 @@ use InvalidArgumentException;
 
 class WorkerConfig {
 	public function __construct(
-		public int $dimension,
-		public string $username,
-		public string $password,
-		public string $character,
+		public readonly int $dimension,
+		public readonly string $username,
+		public readonly string $password,
+		public readonly string $character,
+		public readonly ?string $unfreezeLogin=null,
+		public readonly ?string $unfreezePassword=null,
 	) {
 	}
 
