@@ -68,8 +68,15 @@ class Multi {
 		return $this->isReady;
 	}
 
+	public function disconnect(): void {
+		foreach ($this->connections as $connection) {
+			$connection->disconnect();
+		}
+	}
+
 	/**
 	 * Get the UNIX timestamp when the last package was received by each worker
+	 *
 	 * @return array<string,float>
 	 */
 	public function getLastPackageReceived(): array {
@@ -82,6 +89,7 @@ class Multi {
 
 	/**
 	 * Get the UNIX timestamp when the last pong package was sent by each worker
+	 *
 	 * @return array<string,float>
 	 */
 	public function getLastPongSent(): array {
