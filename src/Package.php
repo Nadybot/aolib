@@ -11,7 +11,7 @@ use Safe\Exceptions\JsonException;
 use Stringable;
 
 abstract class Package implements Stringable {
-	public function __construct(protected Package\Type $type) {
+	public function __construct(public readonly Package\Type $type) {
 	}
 
 	public function __toString() {
