@@ -210,6 +210,13 @@ class Multi {
 		return $character ?? $this->getBestWorker($worker)?->lookupCharacter($uid, $cacheOnly);
 	}
 
+	/** Get the character of the worker with the least buddies on its list */
+	public function getMostEmptyWorker(): string {
+		$fill = $this->getBuddylistSize();
+		asort($fill);
+		return array_keys($fill)[0];
+	}
+
 	/**
 	 * Get the current amount of used up buddylist slots per worker
 	 *
@@ -221,6 +228,24 @@ class Multi {
 			$result[$id] = count($client->getBuddylist());
 		}
 		return $result;
+	}
+
+	/** Add a buddy to the most empty worker */
+	public function buddyAdd(int $uid): void {
+		$this->write(
+			package: new Package\Out\BuddyAdd(charId: $uid),
+			worker: $this->getMostEmptyWorker(),
+		);
+	}
+
+	/** Remove a buddy from all workers */
+	public function buddyRemove(int $uid): void {
+		foreach ($this->connections as $id => $connection) {
+			$buddies = $connection->getBuddylist();
+			if (isset($buddies[$uid])) {
+				$connection->write(new Package\Out\BuddyRemove($uid));
+			}
+		}
 	}
 
 	/**
