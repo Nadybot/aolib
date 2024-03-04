@@ -51,6 +51,8 @@ class Basic {
 
 	private ?string $loggedInChar = null;
 
+	private ?int $loggedInUid = null;
+
 	public function __construct(
 		private Connection $connection,
 		private Parser $parser,
@@ -188,6 +190,9 @@ class Basic {
 	 * @return bool|null Either true/false if online/offline or null, if the status is unknown
 	 */
 	public function isOnline(int $uid, bool $cacheOnly=true): ?bool {
+		if ($uid === $this->loggedInUid) {
+			return true;
+		}
 		$cachedOnlineStatus = $this->buddylist[$uid] ?? null;
 		if ($cacheOnly || $cachedOnlineStatus !== null) {
 			return $cachedOnlineStatus;
@@ -241,6 +246,7 @@ class Basic {
 
 	public function login(string $username, string $password, string $character): void {
 		$this->loggedInChar = null;
+		$this->loggedInUid = null;
 		$this->logger?->debug("Logging in with username {$username}", ["username" => $username]);
 		$this->publicGroups = [];
 		$this->buddylist = [];
@@ -319,6 +325,7 @@ class Basic {
 			);
 		}
 		$this->loggedInChar = $character;
+		$this->loggedInUid = $uid;
 	}
 
 	/**
