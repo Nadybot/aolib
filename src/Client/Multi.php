@@ -211,6 +211,19 @@ class Multi {
 	}
 
 	/**
+	 * Get the current amount of used up buddylist slots per worker
+	 *
+	 * @return array<string,int>
+	 */
+	public function getBuddylistSize(): array {
+		$result = [];
+		foreach ($this->connections as $id => $client) {
+			$result[$id] = count($client->getBuddylist());
+		}
+		return $result;
+	}
+
+	/**
 	 * Get the buddylist as uid => online
 	 *
 	 * @return array<int,bool>
