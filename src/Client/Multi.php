@@ -294,6 +294,14 @@ class Multi {
 		return $online ?? $this->getBestWorker($worker)?->isOnline($uid, $cacheOnly);
 	}
 
+	public function getBestWorker(?string $worker=null): ?Basic {
+		$worker ??= $this->mainCharacter ?? array_keys($this->connections)[0];
+		if (!isset($this->connections[$worker])) {
+			$worker = array_keys($this->connections)[0];
+		}
+		return $this->connections[$worker] ?? null;
+	}
+
 	protected function triggerOnReady(): void {
 		$this->isReady = true;
 		$this->logger?->notice("Bot is now fully ready");
@@ -311,14 +319,6 @@ class Multi {
 				]);
 			}
 		}
-	}
-
-	private function getBestWorker(?string $worker=null): ?Basic {
-		$worker ??= $this->mainCharacter ?? array_keys($this->connections)[0];
-		if (!isset($this->connections[$worker])) {
-			$worker = array_keys($this->connections)[0];
-		}
-		return $this->connections[$worker] ?? null;
 	}
 
 	private function workerLoop(WorkerThread $worker): void {
