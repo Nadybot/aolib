@@ -9,9 +9,9 @@ class Group {
 	public const LOG =      0x02020000;
 
 	final public function __construct(
-		public Group\Id $id,
-		public string $name,
-		public int $flags,
+		public readonly Group\Id $id,
+		public readonly string $name,
+		public readonly int $flags,
 	) {
 	}
 

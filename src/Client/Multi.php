@@ -65,6 +65,15 @@ class Multi {
 	}
 
 	/**
+	 * Get a list of all public group we're in
+	 *
+	 * @return array<string,Group> The groups indexed by their name
+	 */
+	public function getGroups(): array {
+		return $this->getBestWorker()?->getGroups();
+	}
+
+	/**
 	 * Get infomation about a public group we're in
 	 *
 	 * @param string|Group\Id $id the name or id of the group
