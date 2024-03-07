@@ -422,6 +422,9 @@ class Basic {
 	}
 
 	protected function triggerOnReady(): void {
+		if ($this->isReady) {
+			return;
+		}
 		$this->isReady = true;
 		$this->logger?->notice("{charName} is now ready", [
 			"charName" => $this->loggedInChar,
