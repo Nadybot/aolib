@@ -207,8 +207,10 @@ class Basic {
 			return $cachedOnlineStatus;
 		}
 		$this->write(new Out\BuddyAdd(charId: $uid));
-		unset($this->nameToUid["X"]);
-		$this->lookupUid("X");
+		$dummyName = substr(base64_encode(random_bytes(12)), 0, 12);
+		unset($this->nameToUid[$dummyName]);
+		$this->lookupUid($dummyName);
+		unset($this->nameToUid[$dummyName]);
 		$onlineStatus = $this->buddylist[$uid] ?? null;
 		$this->write(new Out\BuddyRemove(charId: $uid));
 		return $onlineStatus;
