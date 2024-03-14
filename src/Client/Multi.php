@@ -174,7 +174,7 @@ class Multi {
 	}
 
 	public function write(Package\Out $package, ?string $worker=null): void {
-		$this->getBestWorker()?->write($package);
+		$this->getBestWorker($worker)?->write($package);
 	}
 
 	/** @return ConcurrentIterator<WorkerPackage> */
