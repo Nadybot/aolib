@@ -3,8 +3,9 @@
 namespace AO\Client;
 
 use InvalidArgumentException;
+use Stringable;
 
-class WorkerConfig {
+class WorkerConfig implements Stringable {
 	public function __construct(
 		public readonly int $dimension,
 		public readonly string $username,
@@ -13,6 +14,16 @@ class WorkerConfig {
 		public readonly ?string $unfreezeLogin=null,
 		public readonly ?string $unfreezePassword=null,
 	) {
+	}
+
+	public function __toString(): string {
+		$classes = explode("\\", get_class($this));
+		$class = array_pop($classes);
+		return "<{$class}>{".
+				"dimension={$this->dimension},".
+				"username={$this->username},".
+				"password=******,".
+				"character={$this->character}}";
 	}
 
 	public function getServer(): string {

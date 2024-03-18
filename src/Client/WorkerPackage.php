@@ -3,12 +3,22 @@
 namespace AO\Client;
 
 use AO\Package;
+use Stringable;
 
-class WorkerPackage {
+class WorkerPackage implements Stringable {
 	public function __construct(
 		public readonly string $worker,
 		public readonly Package\In $package,
 		public readonly Basic $client,
 	) {
+	}
+
+	public function __toString(): string {
+		$classes = explode("\\", get_class($this));
+		$class = array_pop($classes);
+		return "<{$class}>{".
+				"worker={$this->worker},".
+				"package=" . (string)$this->package . ",".
+				"client=<BasicClient>}";
 	}
 }
