@@ -165,12 +165,14 @@ class Multi {
 				}
 			});
 		}
+		/*
 		EventLoop::onSignal(SIGINT, function (string $cancellation) {
 			foreach ($this->connections as $id => $connection) {
 				$connection->disconnect();
 			}
 			EventLoop::cancel($cancellation);
 		});
+	*/
 	}
 
 	public function write(Package\Out $package, ?string $worker=null): void {
