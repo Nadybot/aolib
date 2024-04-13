@@ -8,7 +8,7 @@ class AccountFrozenException extends LoginException {
 	public function __construct(
 		private readonly FrozenAccount $account,
 	) {
-		parent::__construct(message: "Your account is currently frozen");
+		parent::__construct(message: 'Your account is currently frozen');
 	}
 
 	public function getAccount(): FrozenAccount {

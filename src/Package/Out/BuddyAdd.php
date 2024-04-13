@@ -13,6 +13,6 @@ class BuddyAdd extends Package\OutPackage {
 	}
 
 	public static function getFormat(): string {
-		return "IS";
+		return 'IS';
 	}
 }

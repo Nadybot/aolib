@@ -12,6 +12,6 @@ class SetOnlineStatus extends Package\OutPackage {
 	}
 
 	public static function getFormat(): string {
-		return "B";
+		return 'B';
 	}
 }

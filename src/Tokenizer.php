@@ -28,10 +28,10 @@ class Tokenizer implements ReadableStream, \IteratorAggregate {
 	public function read(?Cancellation $cancellation=null): ?string {
 		try {
 			$binHeader = $this->reader->readLength(4, $cancellation);
-			$header = unpack("ntype/nlength", $binHeader);
+			$header = unpack('ntype/nlength', $binHeader);
 			assert(is_int($header['length']));
 			assert($header['length'] >= 0);
-			$binBody = "";
+			$binBody = '';
 			if ($header['length'] > 0) {
 				$binBody = $this->reader->readLength($header['length'], $cancellation);
 			}

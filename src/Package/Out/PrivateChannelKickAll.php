@@ -10,6 +10,6 @@ class PrivateChannelKickAll extends Package\OutPackage {
 	}
 
 	public static function getFormat(): string {
-		return "";
+		return '';
 	}
 }

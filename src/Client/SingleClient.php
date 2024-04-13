@@ -27,7 +27,7 @@ use Revolt\EventLoop;
 use Throwable;
 
 class SingleClient {
-	public const UID_NONE = 0xFFFFFFFF;
+	public const UID_NONE = 0xFF_FF_FF_FF;
 
 	/** @var array<int,string> */
 	private array $uidToName = [];
@@ -170,8 +170,8 @@ class SingleClient {
 			return $character;
 		}
 		$this->write(new Out\BuddyAdd(charId: $uid));
-		unset($this->nameToUid["X"]);
-		$this->lookupUid("X");
+		unset($this->nameToUid['X']);
+		$this->lookupUid('X');
 		$this->write(new Out\BuddyRemove(charId: $uid));
 		return $this->uidToName[$uid] ?? null;
 	}
@@ -239,7 +239,7 @@ class SingleClient {
 	public function read(): ?Package\InPackage {
 		$binPackage = $this->connection->read();
 		if ($binPackage === null) {
-			$this->logger?->info("Stream has closed the connection");
+			$this->logger?->info('Stream has closed the connection');
 			return null;
 		}
 		$this->lastPackage = microtime(true);
@@ -249,15 +249,15 @@ class SingleClient {
 	}
 
 	public function write(Package\OutPackage $package): void {
-		$this->logger?->debug("Sending package {package}", [
-			"package" => $package,
+		$this->logger?->debug('Sending package {package}', [
+			'package' => $package,
 		]);
 		$binPackage = $package->toBinaryPackage();
 		if ($package instanceof Package\Out\RateLimited) {
-			$this->logger?->debug("Sending rate-limited package via bucket-queue");
+			$this->logger?->debug('Sending rate-limited package via bucket-queue');
 			$this->bucket->take(callback: fn () => $this->connection->write($binPackage->toBinary()));
 		} else {
-			$this->logger?->debug("Sending non-rate-limited package instantly");
+			$this->logger?->debug('Sending non-rate-limited package instantly');
 			$this->connection->write($binPackage->toBinary());
 		}
 		if ($package instanceof Package\Out\Pong) {
@@ -272,20 +272,20 @@ class SingleClient {
 	public function login(string $username, string $password, string $character): void {
 		$this->loggedInChar = null;
 		$this->loggedInUid = null;
-		$this->logger?->debug("Logging in with username {$username}", ["username" => $username]);
+		$this->logger?->debug("Logging in with username {$username}", ['username' => $username]);
 		$this->publicGroups = [];
 		$this->buddylist = [];
 		$character = Utils::normalizeCharacter($character);
 		$loginSeed = $this->read();
 		if ($loginSeed === null) {
-			throw new LoginException("No login seed received");
+			throw new LoginException('No login seed received');
 		}
 		if (!($loginSeed instanceof In\LoginSeed)) {
 			throw new WrongPacketOrderException(
-				"Expected " . In\LoginSeed::class . ", got " . get_class($loginSeed)
+				'Expected ' . In\LoginSeed::class . ', got ' . $loginSeed::class
 			);
 		}
-		$this->logger?->debug("Received login seed {seed}, calculating reply", ["seed" => $loginSeed->serverSeed]);
+		$this->logger?->debug('Received login seed {seed}, calculating reply', ['seed' => $loginSeed->serverSeed]);
 		$key = Encryption\TEA::generateLoginKey(
 			serverKey: $loginSeed->serverSeed,
 			username: $username,
@@ -297,22 +297,22 @@ class SingleClient {
 		));
 		$response = $this->read();
 		if ($response === null) {
-			throw new LoginException("Connection unexpectedly closed");
+			throw new LoginException('Connection unexpectedly closed');
 		}
 		if ($response instanceof In\LoginError) {
-			$errorMsgs = explode("|", $response->error);
-			if (count($errorMsgs) === 3 && $errorMsgs[2] === "/Account system denies login") {
+			$errorMsgs = explode('|', $response->error);
+			if (count($errorMsgs) === 3 && $errorMsgs[2] === '/Account system denies login') {
 				if (isset($this->accountUnfreezer) && $this->accountUnfreezer->unfreeze()) {
-					$this->logger?->notice("Account {account} successfully unfrozen, waiting {delay}s", [
-						"account" => $username,
-						"delay" => 5,
+					$this->logger?->notice('Account {account} successfully unfrozen, waiting {delay}s', [
+						'account' => $username,
+						'delay' => 5,
 					]);
 					$this->accountUnfreezer = null;
 					delay(5);
 					$this->login(...func_get_args());
 					return;
 				}
-				$parts = explode(": ", $errorMsgs[0] ?? "");
+				$parts = explode(': ', $errorMsgs[0] ?? '');
 				throw new AccountFrozenException(
 					account: new FrozenAccount(
 						username: $username,
@@ -320,24 +320,24 @@ class SingleClient {
 					),
 				);
 			}
-			$this->logger?->error("Error from login server: {error}", [
-				"error" => $response->error,
+			$this->logger?->error('Error from login server: {error}', [
+				'error' => $response->error,
 			]);
 			throw new LoginException($response->error);
 		}
 		if (!($response instanceof In\LoginCharlist)) {
 			throw new WrongPacketOrderException(
-				"Expected " . In\LoginCharlist::class . ", got " . get_class($response)
+				'Expected ' . In\LoginCharlist::class . ', got ' . $response::class
 			);
 		}
 		$uid = $this->getUidFromCharlist($response, $character);
 		if ($uid === null) {
 			$this->logger?->error(
-				"The character {charName} is not on the account {account}. Found only {validNames}",
+				'The character {charName} is not on the account {account}. Found only {validNames}',
 				[
-					"account" => $username,
-					"validNames" => join(", ", $response->characters),
-					"charName" => $character,
+					'account' => $username,
+					'validNames' => implode(', ', $response->characters),
+					'charName' => $character,
 				]
 			);
 			throw new CharacterNotFoundException(
@@ -347,11 +347,11 @@ class SingleClient {
 		$this->write(new Out\LoginSelectCharacter(charId: $uid));
 		$response = $this->read();
 		if ($response === null) {
-			throw new LoginException("Connection unexpectedly closed");
+			throw new LoginException('Connection unexpectedly closed');
 		}
 		if (!($response instanceof In\LoginOk)) {
 			throw new WrongPacketOrderException(
-				"Expected " . In\LoginOk::class . ", got " . get_class($response)
+				'Expected ' . In\LoginOk::class . ', got ' . $response::class
 			);
 		}
 		$this->loggedInChar = $character;
@@ -380,39 +380,39 @@ class SingleClient {
 	}
 
 	protected function handleCharacterLookupResult(In\CharacterLookupResult $package): void {
-		$this->logger?->debug("In\\ClientLookup received, caching uid <=> name lookups");
+		$this->logger?->debug('In\\ClientLookup received, caching uid <=> name lookups');
 		$this->nameToUid[$package->name] = $package->charId;
 		$this->uidToName[$package->charId] = $package->name;
 		$suspended = $this->pendingUidLookups[$package->name] ?? [];
 		unset($this->pendingUidLookups[$package->name]);
-		$this->logger?->debug("{num_waiting} clients waiting for lookup result", [
-			"num_waiting" => count($suspended),
+		$this->logger?->debug('{num_waiting} clients waiting for lookup result', [
+			'num_waiting' => count($suspended),
 		]);
 		$numFiber = 1;
 		foreach ($suspended as $thread) {
-			$this->logger?->debug("Resuming fiber #{fiber}", ["fiber" => $numFiber++]);
+			$this->logger?->debug('Resuming fiber #{fiber}', ['fiber' => $numFiber++]);
 			$thread->resume($package->getUid());
 		}
 	}
 
 	protected function handleCharacterName(In\CharacterName $package): void {
-		$this->logger?->debug("In\\ClientName received, caching {uid} <=> \"{name}\" lookups", [
-			"uid" => $package->getUid(),
-			"name" => $package->name,
+		$this->logger?->debug('In\\ClientName received, caching {uid} <=> "{name}" lookups', [
+			'uid' => $package->getUid(),
+			'name' => $package->name,
 		]);
 		$this->nameToUid[$package->name] = $package->charId;
 		$this->uidToName[$package->charId] = $package->name;
 	}
 
 	protected function handleBuddyState(In\BuddyState $package): void {
-		$this->logger?->debug("In\\BuddyState received, putting into buddylist with status \"{online}\"", [
-			"online" => ($package->online ? "online" : "offline"),
+		$this->logger?->debug('In\\BuddyState received, putting into buddylist with status "{online}"', [
+			'online' => ($package->online ? 'online' : 'offline'),
 		]);
 		$this->buddylist[$package->charId] = $package->online;
 	}
 
 	protected function handleBuddyRemoved(In\BuddyRemoved $package): void {
-		$this->logger?->debug("In\\BuddyRemoved received, removing from buddylist");
+		$this->logger?->debug('In\\BuddyRemoved received, removing from buddylist');
 		unset($this->buddylist[$package->charId]);
 	}
 
@@ -425,8 +425,8 @@ class SingleClient {
 			name: $package->groupName,
 			flags: $package->flags
 		);
-		$this->logger?->debug("New group {group} announced", [
-			"group" => $group,
+		$this->logger?->debug('New group {group} announced', [
+			'group' => $group,
 		]);
 		$this->publicGroups[$package->groupName] = $group;
 	}
@@ -434,8 +434,8 @@ class SingleClient {
 	protected function handleGroupLeft(In\GroupLeft $package): void {
 		foreach ($this->publicGroups as $name => $group) {
 			if ($package->groupId->sameAs($group->id)) {
-				$this->logger?->debug("Removing the group {group} from our list", [
-					"group" => $name,
+				$this->logger?->debug('Removing the group {group} from our list', [
+					'group' => $name,
 				]);
 				unset($this->publicGroups[$name]);
 			}
@@ -447,20 +447,20 @@ class SingleClient {
 			return;
 		}
 		$this->isReady = true;
-		$this->logger?->notice("{charName} is now ready", [
-			"charName" => $this->loggedInChar,
+		$this->logger?->notice('{charName} is now ready', [
+			'charName' => $this->loggedInChar,
 		]);
 		while (null !== ($callback = array_shift($this->readyListeners))) {
-			$this->logger?->debug("Calling {closure}", [
-				"closure" => Utils::closureToString($callback),
+			$this->logger?->debug('Calling {closure}', [
+				'closure' => Utils::closureToString($callback),
 			]);
 			try {
 				$callback();
 			} catch (Throwable $e) {
-				$this->logger?->error("Error calling {closure}: {error}", [
-					"closure" => Utils::closureToString($callback),
-					"error" => $e->getMessage(),
-					"exception" => $e,
+				$this->logger?->error('Error calling {closure}: {error}', [
+					'closure' => Utils::closureToString($callback),
+					'error' => $e->getMessage(),
+					'exception' => $e,
 				]);
 			}
 		}

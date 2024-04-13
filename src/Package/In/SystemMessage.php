@@ -15,6 +15,6 @@ class SystemMessage extends Package\InPackage {
 	}
 
 	public static function getFormat(): string {
-		return "IIIS";
+		return 'IIIS';
 	}
 }

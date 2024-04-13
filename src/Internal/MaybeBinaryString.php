@@ -14,20 +14,20 @@ final class MaybeBinaryString implements Stringable {
 			$ord = ord($this->data[$i]);
 			switch ($ord) {
 				case 9: // <tab>
-					$bin .= "\\t";
+					$bin .= '\\t';
 					break;
 				case 10: // <newline>
-					$bin .= "\\n";
+					$bin .= '\\n';
 					break;
 				case 34: // "
-					$bin .= "\\\"";
+					$bin .= '\\"';
 					break;
 				case 92: // \
-					$bin .= "\\\\";
+					$bin .= '\\\\';
 					break;
 				default:
 					if ($ord < 32 || $ord > 127) {
-						$bin .= "\\x" . sprintf("%02X", $ord);
+						$bin .= '\\x' . sprintf('%02X', $ord);
 					} else {
 						$bin .= $this->data[$i];
 					}

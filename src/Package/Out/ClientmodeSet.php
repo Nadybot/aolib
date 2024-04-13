@@ -15,6 +15,6 @@ class ClientmodeSet extends Package\OutPackage {
 	}
 
 	public static function getFormat(): string {
-		return "IIII";
+		return 'IIII';
 	}
 }

@@ -16,6 +16,6 @@ class GroupSetClientMode extends Package\OutPackage {
 	}
 
 	public static function getFormat(): string {
-		return "GIIII";
+		return 'GIIII';
 	}
 }

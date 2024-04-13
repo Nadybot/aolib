@@ -14,6 +14,6 @@ class GroupDataSet extends Package\OutPackage {
 	}
 
 	public static function getFormat(): string {
-		return "GIS";
+		return 'GIS';
 	}
 }

@@ -14,11 +14,11 @@ class WorkerPackage implements Stringable {
 	}
 
 	public function __toString(): string {
-		$classes = explode("\\", get_class($this));
+		$classes = explode('\\', static::class);
 		$class = array_pop($classes);
 		return "<{$class}>{".
 				"worker={$this->worker},".
-				"package=" . (string)$this->package . ",".
-				"client=<BasicClient>}";
+				'package=' . (string)$this->package . ','.
+				'client=<BasicClient>}';
 	}
 }

@@ -2,7 +2,7 @@
 
 namespace AO\MMDB;
 
-final class Entry {
+final class MMDBEntry {
 	public function __construct(
 		public int $id,
 		public int $offset,

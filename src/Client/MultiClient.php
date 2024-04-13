@@ -54,11 +54,11 @@ class MultiClient {
 		$this->readQueue = new Queue(0);
 		// @phpstan-ignore-next-line
 		if (empty($workers)) {
-			throw new InvalidArgumentException(__CLASS__ . "::" . __FUNCTION__ . "(\$workers\) must me non-empty");
+			throw new InvalidArgumentException(__CLASS__ . '::' . __FUNCTION__ . "(\$workers\) must me non-empty");
 		}
 		foreach ($workers as $key => $workerConfig) {
 			if (!($workerConfig instanceof WorkerConfig)) {
-				throw new InvalidArgumentException(__CLASS__ . "::" . __FUNCTION__ . "(\$workers[\$key\]\) is not a WorkerConfig");
+				throw new InvalidArgumentException(__CLASS__ . '::' . __FUNCTION__ . "(\$workers[\$key\]\) is not a WorkerConfig");
 			}
 			$this->configs []= $workerConfig;
 		}
@@ -134,7 +134,7 @@ class MultiClient {
 	public function getStatistics(): Statistics {
 		return array_reduce(
 			$this->connections,
-			function (Statistics $stats, SingleClient $client): Statistics {
+			static function (Statistics $stats, SingleClient $client): Statistics {
 				return $stats->add($client->getStatistics());
 			},
 			new Statistics()
@@ -172,7 +172,7 @@ class MultiClient {
 			}
 			throw new AccountsFrozenException(accounts: $frozenAccounts);
 		}
-		$this->logger?->notice("All workers logged in successfully.");
+		$this->logger?->notice('All workers logged in successfully.');
 		$numReady = 0;
 		foreach ($workers[1] as $worker) {
 			$this->connections[$worker->config->character] = $worker->client;
@@ -325,18 +325,18 @@ class MultiClient {
 
 	protected function triggerOnReady(): void {
 		$this->isReady = true;
-		$this->logger?->notice("Bot is now fully ready");
+		$this->logger?->notice('Bot is now fully ready');
 		while (null !== ($callback = array_shift($this->readyListeners))) {
-			$this->logger?->debug("Calling {closure}", [
-				"closure" => Utils::closureToString($callback),
+			$this->logger?->debug('Calling {closure}', [
+				'closure' => Utils::closureToString($callback),
 			]);
 			try {
 				$callback();
 			} catch (Throwable $e) {
-				$this->logger?->error("Error calling {closure}: {error}", [
-					"closure" => Utils::closureToString($callback),
-					"error" => $e->getMessage(),
-					"exception" => $e,
+				$this->logger?->error('Error calling {closure}: {error}', [
+					'closure' => Utils::closureToString($callback),
+					'error' => $e->getMessage(),
+					'exception' => $e,
 				]);
 			}
 		}
@@ -360,20 +360,20 @@ class MultiClient {
 
 	private function clientLogin(WorkerConfig $config): WorkerFiber {
 		do {
-			$this->logger?->notice("Connecting to server {server}", ["server" => $config->getServer()]);
+			$this->logger?->notice('Connecting to server {server}', ['server' => $config->getServer()]);
 			try {
 				$connection = connect($config->getServer());
 			} catch (\Throwable $e) {
-				$this->logger?->error("Cannot connect to {server}: {error}. Retrying in {delay}s", [
-					"server" => $config->getServer(),
-					"error" => $e->getMessage(),
-					"delay" => 5,
-					"exception" => $e,
+				$this->logger?->error('Cannot connect to {server}: {error}. Retrying in {delay}s', [
+					'server' => $config->getServer(),
+					'error' => $e->getMessage(),
+					'delay' => 5,
+					'exception' => $e,
 				]);
 				delay(5);
 			}
 		} while (!isset($connection));
-		$this->logger?->info("Connected to {server}", ["server" => $config->getServer()]);
+		$this->logger?->info('Connected to {server}', ['server' => $config->getServer()]);
 		$client = new SingleClient(
 			logger: $this->logger,
 			parser: $this->parser ?? Parser::createDefault(),
@@ -389,8 +389,8 @@ class MultiClient {
 			password: $config->password,
 			character: Utils::normalizeCharacter($config->character),
 		);
-		$this->logger?->notice("Successfully logged in {character}", [
-			"character" => $config->character,
+		$this->logger?->notice('Successfully logged in {character}', [
+			'character' => $config->character,
 		]);
 		return new WorkerFiber(
 			config: $config,

@@ -21,7 +21,7 @@ class GroupId implements Stringable {
 	}
 
 	public function toBinary(): string {
-		return pack("CN", $this->type->value, $this->number);
+		return pack('CN', $this->type->value, $this->number);
 	}
 
 	public function sameAs(self $other): bool {

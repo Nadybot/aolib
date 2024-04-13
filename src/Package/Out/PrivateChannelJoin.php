@@ -12,6 +12,6 @@ class PrivateChannelJoin extends Package\OutPackage {
 	}
 
 	public static function getFormat(): string {
-		return "I";
+		return 'I';
 	}
 }

@@ -42,7 +42,7 @@ final class Connection implements \IteratorAggregate, WritableStream {
 			return null;
 		}
 		$this->statistics->bytesRead += \strlen($binPackage);
-		$header = unpack("ntype/nlength", $binPackage);
+		$header = unpack('ntype/nlength', $binPackage);
 		$package = new BinaryPackage\BinaryPackageIn(
 			type: PackageType::from($header['type']),
 			length: $header['length'],
@@ -50,7 +50,7 @@ final class Connection implements \IteratorAggregate, WritableStream {
 		);
 		$this->statistics->packagesRead[$package->type->value] ??= 0;
 		$this->statistics->packagesRead[$package->type->value]++;
-		$this->logger?->debug("Received {package}", ["package" => $package]);
+		$this->logger?->debug('Received {package}', ['package' => $package]);
 		return $package;
 	}
 
@@ -79,8 +79,8 @@ final class Connection implements \IteratorAggregate, WritableStream {
 			$type = $bytes->type->value;
 			$bytes = $bytes->toBinary();
 		} else {
-			$unpacked = unpack("ntype", $bytes);
-			$type = (int)$unpacked["type"];
+			$unpacked = unpack('ntype', $bytes);
+			$type = (int)$unpacked['type'];
 		}
 		$this->statistics->bytesWritten += \strlen($bytes);
 		$this->statistics->packagesWritten[$type] ??= 0;

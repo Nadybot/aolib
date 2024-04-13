@@ -1,5 +1,5 @@
 {
-    "simple-php-cs-fixer.config": ".php-cs-fixer.php",
+    "simple-php-cs-fixer.config": ".php-cs-fixer.dist.php",
     "simple-php-cs-fixer.executablePath": "vendor/bin/php-cs-fixer.phar",
     "simple-php-cs-fixer.save": true,
     "simple-php-cs-fixer.useConfig": true,

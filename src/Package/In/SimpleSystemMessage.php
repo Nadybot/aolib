@@ -12,6 +12,6 @@ class SimpleSystemMessage extends Package\InPackage {
 	}
 
 	public static function getFormat(): string {
-		return "S";
+		return 'S';
 	}
 }

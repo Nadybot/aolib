@@ -15,6 +15,6 @@ class GroupJoined extends Package\InPackage {
 	}
 
 	public static function getFormat(): string {
-		return "GSIS";
+		return 'GSIS';
 	}
 }

@@ -15,6 +15,6 @@ class PrivateChannelMessage extends Package\InPackage {
 	}
 
 	public static function getFormat(): string {
-		return "IISS";
+		return 'IISS';
 	}
 }

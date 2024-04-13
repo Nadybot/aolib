@@ -12,7 +12,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Reads entries from the text.mdb file
  */
-class AsyncClient implements Client {
+class AsyncMMDBClient implements MMDBClient {
 	/**
 	 * A cache to quickly access the most common lookups
 	 *
@@ -26,20 +26,20 @@ class AsyncClient implements Client {
 	) {
 		$this->mmdb->seek(0);
 		$entry = $this->readEntry();
-		if ($entry->id !== 1111772493) {
-			throw new InvalidArgumentException("Argument \$mmdb to " . __CLASS__ . " is not an mmdb file: '" . $mmdb->getPath() . "'");
+		if ($entry->id !== 1_111_772_493) {
+			throw new InvalidArgumentException('Argument $mmdb to ' . __CLASS__ . " is not an mmdb file: '" . $mmdb->getPath() . "'");
 		}
 	}
 
 	public static function createDefault(): self {
-		$file = openFile(dirname(__DIR__, 2) . "/data/text.mdb", "rb");
+		$file = openFile(dirname(__DIR__, 2) . '/data/text.mdb', 'rb');
 		return new self(mmdb: $file);
 	}
 
 	public function getMessageString(int $categoryId, int $messageId): ?string {
-		$this->logger?->info("Looking up messageId={message_id}, categoryId={category_id}", [
-			"category_id"=> $categoryId,
-			"message_id" => $messageId,
+		$this->logger?->info('Looking up messageId={message_id}, categoryId={category_id}', [
+			'category_id'=> $categoryId,
+			'message_id' => $messageId,
 		]);
 		// check for entry in cache
 		if (isset($this->cache[$categoryId][$messageId])) {
@@ -52,8 +52,8 @@ class AsyncClient implements Client {
 		// find the category
 		$category = $this->findEntry($categoryId, 8);
 		if ($category === null) {
-			$this->logger?->error("Could not find categoryID {category_id}", [
-				"category_id"=> $categoryId,
+			$this->logger?->error('Could not find categoryID {category_id}', [
+				'category_id'=> $categoryId,
 			]);
 			return null;
 		}
@@ -61,9 +61,9 @@ class AsyncClient implements Client {
 		// find the instance
 		$instance = $this->findEntry($messageId, $category->offset);
 		if ($instance === null) {
-			$this->logger?->error("Could not find messageId {message_id} for categoryId {category_id}", [
-				"category_id"=> $categoryId,
-				"message_id" => $messageId,
+			$this->logger?->error('Could not find messageId {message_id} for categoryId {category_id}', [
+				'category_id'=> $categoryId,
+				'message_id' => $messageId,
 			]);
 			return null;
 		}
@@ -75,14 +75,14 @@ class AsyncClient implements Client {
 		return $message;
 	}
 
-	/** @return Entry[]|null */
+	/** @return MMDBEntry[]|null */
 	public function findAllInstancesInCategory(int $categoryId): ?array {
 		// start at offset = 8 since that is where the categories start
 		// find the category
 		$category = $this->findEntry($categoryId, 8);
 		if ($category === null) {
-			$this->logger?->error("Could not find categoryID {category_id}", [
-				"category_id" => $categoryId,
+			$this->logger?->error('Could not find categoryID {category_id}', [
+				'category_id' => $categoryId,
 			]);
 			return null;
 		}
@@ -102,7 +102,7 @@ class AsyncClient implements Client {
 		return $instances;
 	}
 
-	/** @return null|Entry[] */
+	/** @return null|MMDBEntry[] */
 	public function getCategories(): ?array {
 		// start at offset = 8 since that is where the categories start
 		$this->mmdb->seek(8);
@@ -126,7 +126,7 @@ class AsyncClient implements Client {
 	 * @param int $id     The category ID
 	 * @param int $offset Offset where to read
 	 */
-	private function findEntry(int $id, int $offset): ?Entry {
+	private function findEntry(int $id, int $offset): ?MMDBEntry {
 		$this->mmdb->seek($offset);
 		$entry = null;
 
@@ -142,8 +142,8 @@ class AsyncClient implements Client {
 		return $entry;
 	}
 
-	private function readEntry(): Entry {
-		return new Entry(
+	private function readEntry(): MMDBEntry {
+		return new MMDBEntry(
 			id: $this->readLong(),
 			offset: $this->readLong(),
 		);
@@ -152,9 +152,9 @@ class AsyncClient implements Client {
 	private function readLong(): int {
 		$packed = $this->mmdb->read(length: 4);
 		if ($packed === null || strlen($packed) < 4) {
-			throw new \Exception("The MMDB file is broken");
+			throw new \Exception('The MMDB file is broken');
 		}
-		$unpacked = unpack("L", $packed);
+		$unpacked = unpack('L', $packed);
 		return array_pop($unpacked);
 	}
 
@@ -164,13 +164,13 @@ class AsyncClient implements Client {
 
 		$char = $this->mmdb->read(length: 1);
 		if ($char === null || strlen($char) < 1) {
-			throw new \Exception("The MMDB file is broken");
+			throw new \Exception('The MMDB file is broken');
 		}
 		while ($char !== "\0" && !$this->mmdb->eof()) {
 			$message .= $char;
 			$char = $this->mmdb->read(length: 1);
 			if ($char === null) {
-				throw new \Exception("The MMDB file is broken");
+				throw new \Exception('The MMDB file is broken');
 			}
 		}
 

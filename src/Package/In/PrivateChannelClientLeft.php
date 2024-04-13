@@ -13,6 +13,6 @@ class PrivateChannelClientLeft extends Package\InPackage {
 	}
 
 	public static function getFormat(): string {
-		return "II";
+		return 'II';
 	}
 }

@@ -12,6 +12,6 @@ class Pong extends Package\OutPackage {
 	}
 
 	public static function getFormat(): string {
-		return "S";
+		return 'S';
 	}
 }

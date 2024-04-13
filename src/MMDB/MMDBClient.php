@@ -5,6 +5,6 @@ namespace AO\MMDB;
 /**
  * A generic interface for an MMDB client that allows reading predefined strings
  */
-interface Client {
+interface MMDBClient {
 	public function getMessageString(int $categoryId, int $messageId): ?string;
 }

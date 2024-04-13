@@ -10,6 +10,6 @@ class LoginOk extends Package\InPackage {
 	}
 
 	public static function getFormat(): string {
-		return "";
+		return '';
 	}
 }

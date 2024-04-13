@@ -14,6 +14,6 @@ class ChatCommand extends Package\OutPackage {
 	}
 
 	public static function getFormat(): string {
-		return "sI";
+		return 'sI';
 	}
 }

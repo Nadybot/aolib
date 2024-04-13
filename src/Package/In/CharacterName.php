@@ -13,10 +13,10 @@ class CharacterName extends Package\InPackage {
 	}
 
 	public function getUid(): ?int {
-		return $this->charId === 0xFFFFFFFF ? null : $this->charId;
+		return $this->charId === 0xFF_FF_FF_FF ? null : $this->charId;
 	}
 
 	public static function getFormat(): string {
-		return "IS";
+		return 'IS';
 	}
 }

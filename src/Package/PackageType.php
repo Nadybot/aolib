@@ -32,7 +32,7 @@ enum PackageType: int {
 			static::PublicChannelMessage => In\GroupMessage::class,
 			static::Ping => In\Ping::class,
 			static::AdmMuxInfo => In\AdmMuxInfo::class,
-			default => throw new \InvalidArgumentException($this->name . " needs a class representation."),
+			default => throw new \InvalidArgumentException($this->name . ' needs a class representation.'),
 		};
 	}
 
@@ -60,7 +60,7 @@ enum PackageType: int {
 			static::Ping => Out\Pong::class,
 			static::ChatCommand => Out\ChatCommand::class,
 
-			default => throw new \InvalidArgumentException($this->name . " needs a class representation."),
+			default => throw new \InvalidArgumentException($this->name . ' needs a class representation.'),
 		};
 	}
 
@@ -99,5 +99,5 @@ enum PackageType: int {
 	case ClientModeSet = 71;
 	case Ping = 100;
 	case ChatCommand = 120;
-	case AdmMuxInfo = 1100;
+	case AdmMuxInfo = 1_100;
 }

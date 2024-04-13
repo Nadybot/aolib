@@ -30,12 +30,12 @@ abstract class Package implements Stringable {
 			} elseif ($value instanceof \UnitEnum) {
 				$value = $value->name;
 			} elseif ($value instanceof \Closure) {
-				$value = "<Closure>";
+				$value = '<Closure>';
 			} else {
 				try {
 					$value = json_encode(
 						$value,
-						JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_INVALID_UTF8_SUBSTITUTE
+						\JSON_UNESCAPED_SLASHES|\JSON_UNESCAPED_UNICODE|\JSON_INVALID_UTF8_SUBSTITUTE
 					);
 				} catch (JsonException) {
 					continue;
@@ -43,19 +43,19 @@ abstract class Package implements Stringable {
 			}
 			$values []= "{$key}={$value}";
 		}
-		$classes = explode("\\", get_class($this));
+		$classes = explode('\\', static::class);
 		$class = array_pop($classes);
-		return "<{$class}>{" . join(",", $values) . "}";
+		return "<{$class}>{" . implode(',', $values) . '}';
 	}
 
 	public function toBinaryPackage(): BinaryPackage {
 		$type = $this->type;
 		$format = $this->getFormat();
 		$values = $this->getPackageValues();
-		$body = "";
+		$body = '';
 		for ($i = 0; $i < strlen($format); $i++) {
 			if (!isset($values[$i])) {
-				throw new \Exception("The declaration of " . self::class . "and its binary representation is inconsistent.");
+				throw new \Exception('The declaration of ' . self::class . 'and its binary representation is inconsistent.');
 			}
 			$body .= $this->toFormat(substr($format, $i, 1), $values[$i]);
 		}
@@ -72,7 +72,7 @@ abstract class Package implements Stringable {
 	protected function getPackageValues(): array {
 		$result = [];
 		$refClass = new \ReflectionClass($this);
-		$refFunc = $refClass->getMethod("__construct");
+		$refFunc = $refClass->getMethod('__construct');
 		$refParams = $refFunc->getParameters();
 		$pos = 0;
 		foreach ($refParams as $refParam) {
@@ -97,30 +97,30 @@ abstract class Package implements Stringable {
 	/** @param bool|int|string|string[]|int[]|GroupId $value */
 	protected function toFormat(string $format, bool|int|string|array|GroupId $value): string {
 		switch ($format) {
-			case "B":
+			case 'B':
 				assert(is_bool($value));
-				return pack("N", (int)$value);
-			case "I":
+				return pack('N', (int)$value);
+			case 'I':
 				assert(is_int($value));
-				return pack("N", $value);
-			case "S":
+				return pack('N', $value);
+			case 'S':
 				assert(is_string($value));
-				return pack("n", strlen($value)) . $value;
-			case "G":
+				return pack('n', strlen($value)) . $value;
+			case 'G':
 				assert(is_object($value));
 				assert($value instanceof GroupId);
-				return pack("CN", $value->type->value, $value->number);
-			case "i":
+				return pack('CN', $value->type->value, $value->number);
+			case 'i':
 				assert(is_array($value));
 				$count = count($value);
 				return pack("nN{$count}", $count, ...$value);
-			case "s":
+			case 's':
 				assert(is_array($value));
 				$count = count($value);
-				$result = pack("n", $count);
+				$result = pack('n', $count);
 				foreach ($value as $element) {
 					assert(is_string($element));
-					$result .= pack("n", strlen($element)) . $element;
+					$result .= pack('n', strlen($element)) . $element;
 				}
 				return $result;
 			default:

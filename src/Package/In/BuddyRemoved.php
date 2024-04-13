@@ -12,6 +12,6 @@ class BuddyRemoved extends Package\InPackage {
 	}
 
 	public static function getFormat(): string {
-		return "I";
+		return 'I';
 	}
 }

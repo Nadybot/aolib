@@ -18,39 +18,39 @@ class TEA {
 	 * @see http://en.wikipedia.org/wiki/Diffie-Hellman_key_exchange
 	 */
 	public static function generateLoginKey(string $serverKey, string $username, string $password): string {
-		$dhY = "0x9c32cc23d559ca90fc31be72df817d0e124769e809f936bc14360ff4b".
-			"ed758f260a0d596584eacbbc2b88bdd410416163e11dbf62173393fbc0c6fe".
-			"fb2d855f1a03dec8e9f105bbad91b3437d8eb73fe2f44159597aa4053cf788".
-			"d2f9d7012fb8d7c4ce3876f7d6cd5d0c31754f4cd96166708641958de54a6d".
-			"ef5657b9f2e92";
-		$dhN = "0xeca2e8c85d863dcdc26a429a71a9815ad052f6139669dd659f98ae159".
-			"d313d13c6bf2838e10a69b6478b64a24bd054ba8248e8fa778703b41840824".
-			"9440b2c1edd28853e240d8a7e49540b76d120d3b1ad2878b1b99490eb4a2a5".
-			"e84caa8a91cecbdb1aa7c816e8be343246f80c637abc653b893fd91686cf8d".
-			"32d6cfe5f2a6f";
-		$dhG = "0x5";
-		$dhx = "0x".self::getRandomHexKey(256);
+		$dhY = '0x9c32cc23d559ca90fc31be72df817d0e124769e809f936bc14360ff4b'.
+			'ed758f260a0d596584eacbbc2b88bdd410416163e11dbf62173393fbc0c6fe'.
+			'fb2d855f1a03dec8e9f105bbad91b3437d8eb73fe2f44159597aa4053cf788'.
+			'd2f9d7012fb8d7c4ce3876f7d6cd5d0c31754f4cd96166708641958de54a6d'.
+			'ef5657b9f2e92';
+		$dhN = '0xeca2e8c85d863dcdc26a429a71a9815ad052f6139669dd659f98ae159'.
+			'd313d13c6bf2838e10a69b6478b64a24bd054ba8248e8fa778703b41840824'.
+			'9440b2c1edd28853e240d8a7e49540b76d120d3b1ad2878b1b99490eb4a2a5'.
+			'e84caa8a91cecbdb1aa7c816e8be343246f80c637abc653b893fd91686cf8d'.
+			'32d6cfe5f2a6f';
+		$dhG = '0x5';
+		$dhx = '0x'.self::getRandomHexKey(256);
 
 		$dhX = self::bcmathPowM($dhG, $dhx, $dhN);
 		$dhK = self::bcmathPowM($dhY, $dhx, $dhN);
 
-		$str = sprintf("%s|%s|%s", $username, $serverKey, $password);
+		$str = sprintf('%s|%s|%s', $username, $serverKey, $password);
 
 		if (strlen($dhK) < 32) {
-			$dhK = str_repeat("0", 32-strlen($dhK)) . $dhK;
+			$dhK = str_repeat('0', 32-strlen($dhK)) . $dhK;
 		} else {
 			$dhK = substr($dhK, 0, 32);
 		}
 
-		$prefix = pack("H16", self::getRandomHexKey(64));
+		$prefix = pack('H16', self::getRandomHexKey(64));
 		$length = 8 + 4 + strlen($str); // prefix, int, ...
-		$pad    = str_repeat(" ", (8 - $length % 8) % 8);
-		$strlen = pack("N", strlen($str));
+		$pad    = str_repeat(' ', (8 - $length % 8) % 8);
+		$strlen = pack('N', strlen($str));
 
 		$plain   = $prefix . $strlen . $str . $pad;
 		$encrypted = self::aoChatCrypt($dhK, $plain);
 
-		return $dhX . "-" . $encrypted;
+		return $dhX . '-' . $encrypted;
 	}
 
 	/**
@@ -60,9 +60,9 @@ class TEA {
 	 * This can be used instead of unpack/pack to get the value we need.
 	 */
 	private static function safeDecHexReverseEndian(float $value): string {
-		$result = "";
+		$result = '';
 		$value = self::reduceTo32Bit($value);
-		$hex   = substr("00000000".dechex($value), -8);
+		$hex   = substr('00000000'.dechex($value), -8);
 
 		$bytes = str_split($hex, 2);
 
@@ -76,13 +76,13 @@ class TEA {
 	/** Do an AOChat-conform encryption of $str with $key */
 	private static function aoChatCrypt(string $key, string $str): string {
 		if (strlen($key) !== 32 || strlen($str) % 8 !== 0) {
-			throw new InvalidArgumentException("Invalid key or string received.");
+			throw new InvalidArgumentException('Invalid key or string received.');
 		}
 
-		$ret    = "";
+		$ret    = '';
 
-		$keyarr  = unpack("V*", pack("H*", $key));
-		$dataarr = unpack("V*", $str);
+		$keyarr  = unpack('V*', pack('H*', $key));
+		$dataarr = unpack('V*', $str);
 
 		$prev = [0, 0];
 		for ($i = 1; $i <= count($dataarr); $i += 2) {
@@ -101,7 +101,7 @@ class TEA {
 
 	/** Generate a random hex string with $bits bits length */
 	private static function getRandomHexKey(int $bits): string {
-		$str = "";
+		$str = '';
 		do {
 			$str .= sprintf('%02x', random_int(0, 0xFF));
 		} while (($bits -= 8) > 0);
@@ -110,7 +110,7 @@ class TEA {
 
 	/** Raise an arbitrary precision number to another, reduced by a specified modulus */
 	private static function bcmathPowM(string $base, string $exp, string $mod): string {
-		if (function_exists("gmp_powm") && function_exists("gmp_strval")) {
+		if (function_exists('gmp_powm') && function_exists('gmp_strval')) {
 			$r = gmp_powm($base, $exp, $mod);
 			$r = gmp_strval($r);
 		} else {
@@ -124,19 +124,19 @@ class TEA {
 			$r = bcpowmod($base, $exp, $mod);
 		}
 		if (!is_string($r)) {
-			throw new Exception("Error in AO encryption");
+			throw new Exception('Error in AO encryption');
 		}
 		return self::bigDecHex($r);
 	}
 
 	/** Convert a HEX value into a decimal value */
 	private static function bigHexCec(string $x): string {
-		if (substr($x, 0, 2) !== "0x") {
+		if (substr($x, 0, 2) !== '0x') {
 			return $x;
 		}
-		$r = "0";
+		$r = '0';
 		for ($p = $q = strlen($x) - 1; $p >= 2; $p--) {
-			$r = bcadd($r, bcmul((string)hexdec($x[$p]), bcpow("16", (string)($q - $p))));
+			$r = bcadd($r, bcmul((string)hexdec($x[$p]), bcpow('16', (string)($q - $p))));
 		}
 		return $r;
 	}
@@ -146,10 +146,10 @@ class TEA {
 		if (!is_numeric($x)) {
 			throw new InvalidArgumentException("Invalid numeric string encountered: {$x}");
 		}
-		$r = "";
-		while ($x !== "0") {
-			$r = dechex((int)bcmod($x, "16")) . $r;
-			$x = bcdiv($x, "16");
+		$r = '';
+		while ($x !== '0') {
+			$r = dechex((int)bcmod($x, '16')) . $r;
+			$x = bcdiv($x, '16');
 		}
 		return $r;
 	}
@@ -166,20 +166,20 @@ class TEA {
 	private static function reduceTo32Bit(float $value): int {
 		$strValue = (string)$value;
 		// If its negative, lets go positive ... its easier to do everything as positive.
-		if (bccomp($strValue, "0") === -1) {
+		if (bccomp($strValue, '0') === -1) {
 			$strValue = self::negativeToUnsigned($value);
 		}
 		if (!is_numeric($strValue)) {
 			throw new Exception("Invalid numeric string encountered: {$strValue}");
 		}
 
-		$bit32  = (string)0x80000000;
+		$bit32  = (string)0x80_00_00_00;
 		$bit    = $bit32;
 		$bits   = [];
 
 		// Find the largest bit contained in $value above 32-bits
 		while (bccomp($strValue, $bit) > -1) {
-			$bit    = bcmul($bit, "2");
+			$bit    = bcmul($bit, '2');
 			$bits[] = $bit;
 		}
 
@@ -211,22 +211,22 @@ class TEA {
 	 */
 	private static function negativeToUnsigned(float $value): string {
 		$strValue = (string)$value;
-		if (bccomp($strValue, "0") !== -1) {
+		if (bccomp($strValue, '0') !== -1) {
 			return $strValue;
 		}
 
-		$strValue = bcmul($strValue, "-1");
-		$higherValue = (string)0xFFFFFFFF;
+		$strValue = bcmul($strValue, '-1');
+		$higherValue = (string)0xFF_FF_FF_FF;
 
 		// We don't know how many bytes the integer might be, so
 		// start with one byte and then grow it byte by byte until
 		// our negative number fits inside it. This will make the resulting
 		// positive number fit in the same number of bytes.
 		while (bccomp($strValue, $higherValue) === 1) {
-			$higherValue = bcadd(bcmul($higherValue, (string)0x100), (string)0xFF);
+			$higherValue = bcadd(bcmul($higherValue, (string)0x1_00), (string)0xFF);
 		}
 
-		$strValue = bcadd(bcsub($higherValue, $strValue), "1");
+		$strValue = bcadd(bcsub($higherValue, $strValue), '1');
 
 		return $strValue;
 	}
@@ -245,7 +245,7 @@ class TEA {
 		$a = $x[0];
 		$b = $x[1];
 		$c = 0;
-		$d = 0x9E3779B9;
+		$d = 0x9E_37_79_B9;
 		for ($i = 32; $i-- > 0;) {
 			$c  = self::reduceTo32Bit($c + $d);
 			$a += self::reduceTo32Bit(
@@ -253,14 +253,14 @@ class TEA {
 					(self::reduceTo32Bit($b) << 4 & -16) + $y[1]
 				) ^ self::reduceTo32Bit($b + $c)
 			) ^ self::reduceTo32Bit(
-				(self::reduceTo32Bit($b) >> 5 & 134217727) + $y[2]
+				(self::reduceTo32Bit($b) >> 5 & 134_217_727) + $y[2]
 			);
 			$b += self::reduceTo32Bit(
 				self::reduceTo32Bit(
 					(self::reduceTo32Bit($a) << 4 & -16) + $y[3]
 				) ^ self::reduceTo32Bit($a + $c)
 			) ^ self::reduceTo32Bit(
-				(self::reduceTo32Bit($a) >> 5 & 134217727) + $y[4]
+				(self::reduceTo32Bit($a) >> 5 & 134_217_727) + $y[4]
 			);
 		}
 		return [$a, $b];

@@ -14,11 +14,11 @@ class WorkerFiber implements Stringable {
 	}
 
 	public function __toString(): string {
-		$classes = explode("\\", get_class($this));
+		$classes = explode('\\', static::class);
 		$class = array_pop($classes);
 		return "<{$class}>{".
-				"config=" . (string)$this->config . ",".
-				"socket=<Amp\\Socket\\Socket>,".
-				"client=<BasicClient>}";
+				'config=' . (string)$this->config . ','.
+				'socket=<Amp\\Socket\\Socket>,'.
+				'client=<BasicClient>}';
 	}
 }

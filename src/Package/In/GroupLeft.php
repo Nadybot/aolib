@@ -12,6 +12,6 @@ class GroupLeft extends Package\InPackage {
 	}
 
 	public static function getFormat(): string {
-		return "G";
+		return 'G';
 	}
 }

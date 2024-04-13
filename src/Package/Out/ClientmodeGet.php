@@ -13,6 +13,6 @@ class ClientmodeGet extends Package\OutPackage {
 	}
 
 	public static function getFormat(): string {
-		return "IG";
+		return 'IG';
 	}
 }

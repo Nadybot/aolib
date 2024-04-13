@@ -14,6 +14,6 @@ class GroupMessage extends Package\Out\RateLimited {
 	}
 
 	public static function getFormat(): string {
-		return "GSS";
+		return 'GSS';
 	}
 }

@@ -16,13 +16,13 @@ class Utils {
 	}
 
 	public static function closureToString(Closure $closure): string {
-		$result = "";
+		$result = '';
 		$refCallback = new ReflectionFunction($closure);
 		$class = $refCallback->getClosureCalledClass();
 		$function = $refCallback->getShortName();
 		if (isset($class)) {
 			$result .= $class->getName().
-				(($refCallback->isStatic()) ? "::" : "->").
+				(($refCallback->isStatic()) ? '::' : '->').
 				$function;
 		} else {
 			if (!$refCallback->inNamespace()) {
@@ -30,8 +30,8 @@ class Utils {
 			}
 			$result .= $function;
 		}
-		if (!str_ends_with($function, "}")) {
-			$result .= "()";
+		if (!str_ends_with($function, '}')) {
+			$result .= '()';
 		}
 		$fileName = $refCallback->getFileName();
 		if ($fileName !== false) {
@@ -40,7 +40,7 @@ class Utils {
 			if ($startLine !== false) {
 				$result .= ":{$startLine}";
 			}
-			$result .= ")";
+			$result .= ')';
 		}
 		return $result;
 	}

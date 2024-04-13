@@ -14,6 +14,6 @@ class BuddyState extends Package\InPackage {
 	}
 
 	public static function getFormat(): string {
-		return "IBS";
+		return 'IBS';
 	}
 }

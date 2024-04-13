@@ -9,7 +9,7 @@ class AccountsFrozenException extends LoginException {
 	public function __construct(
 		private readonly array $accounts,
 	) {
-		parent::__construct(message: "One or more accounts are currently frozen");
+		parent::__construct(message: 'One or more accounts are currently frozen');
 	}
 
 	/** @return FrozenAccount[] */

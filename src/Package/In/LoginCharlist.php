@@ -21,6 +21,6 @@ class LoginCharlist extends Package\InPackage {
 	}
 
 	public static function getFormat(): string {
-		return "isib";
+		return 'isib';
 	}
 }

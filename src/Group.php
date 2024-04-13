@@ -3,10 +3,10 @@
 namespace AO;
 
 class Group {
-	public const NO_WRITE = 0x00000002;
-	public const NO_ASIAN = 0x00000020;
-	public const MUTE =     0x01010000;
-	public const LOG =      0x02020000;
+	public const NO_WRITE = 0x00_00_00_02;
+	public const NO_ASIAN = 0x00_00_00_20;
+	public const MUTE =     0x01_01_00_00;
+	public const LOG =      0x02_02_00_00;
 
 	final public function __construct(
 		public readonly Group\GroupId $id,

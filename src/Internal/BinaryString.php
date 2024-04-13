@@ -9,8 +9,8 @@ final class BinaryString implements Stringable {
 	}
 
 	public function __toString(): string {
-		$binData = join(
-			"",
+		$binData = implode(
+			'',
 			array_map(
 				dechex(...),
 				array_map(

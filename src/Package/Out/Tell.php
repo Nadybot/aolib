@@ -14,6 +14,6 @@ class Tell extends Package\Out\RateLimited {
 	}
 
 	public static function getFormat(): string {
-		return "ISS";
+		return 'ISS';
 	}
 }

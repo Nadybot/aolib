@@ -16,6 +16,6 @@ class GroupMessage extends Package\InPackage {
 	}
 
 	public static function getFormat(): string {
-		return "GISS";
+		return 'GISS';
 	}
 }

@@ -19,6 +19,6 @@ class AdmMuxInfo extends Package\InPackage {
 	}
 
 	public static function getFormat(): string {
-		return "iii";
+		return 'iii';
 	}
 }

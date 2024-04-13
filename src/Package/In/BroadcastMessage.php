@@ -14,6 +14,6 @@ class BroadcastMessage extends Package\InPackage {
 	}
 
 	public static function getFormat(): string {
-		return "SSS";
+		return 'SSS';
 	}
 }
