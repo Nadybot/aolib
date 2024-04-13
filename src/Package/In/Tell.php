@@ -4,13 +4,13 @@ namespace AO\Package\In;
 
 use AO\Package;
 
-class Tell extends Package\In {
+class Tell extends Package\InPackage {
 	public function __construct(
 		public int $charId,
 		public string $message,
 		public string $extra,
 	) {
-		parent::__construct(Package\Type::PrivateMessage);
+		parent::__construct(Package\PackageType::PrivateMessage);
 	}
 
 	public static function getFormat(): string {

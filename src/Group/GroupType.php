@@ -2,7 +2,7 @@
 
 namespace AO\Group;
 
-enum Type: int {
+enum GroupType: int {
 	case Org = 3;
 	case PVP = 10;
 	case Announcements = 12;

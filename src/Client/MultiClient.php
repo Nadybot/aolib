@@ -7,16 +7,16 @@ use function Amp\Socket\connect;
 use function Amp\{async, delay};
 
 use Amp\Pipeline\{ConcurrentIterator, Queue};
-use AO\{Group, Package, Parser, Utils};
+use AO\Exceptions\{AccountFrozenException, AccountsFrozenException, LoginException};
+use AO\{Group, Group\GroupId, Package, Package\OutPackage, Parser, Utils};
 use Closure;
 use InvalidArgumentException;
 use Nadylib\LeakyBucket\LeakyBucket;
 use Psr\Log\LoggerInterface;
-use Revolt\EventLoop;
 use Throwable;
 
-class Multi {
-	/** @var array<string,Basic> */
+class MultiClient {
+	/** @var array<string,SingleClient> */
 	private array $connections = [];
 
 	/** @var WorkerConfig[] */
@@ -76,11 +76,11 @@ class Multi {
 	/**
 	 * Get infomation about a public group we're in
 	 *
-	 * @param string|Group\Id $id the name or id of the group
+	 * @param string|GroupId $id the name or id of the group
 	 *
 	 * @return Group|null Information about the group, or NULL, if we're not in it
 	 */
-	public function getGroup(string|Group\Id $id): ?Group {
+	public function getGroup(string|GroupId $id): ?Group {
 		return $this->getBestWorker()?->getGroup($id);
 	}
 
@@ -134,13 +134,19 @@ class Multi {
 	public function getStatistics(): Statistics {
 		return array_reduce(
 			$this->connections,
-			function (Statistics $stats, Basic $client): Statistics {
+			function (Statistics $stats, SingleClient $client): Statistics {
 				return $stats->add($client->getStatistics());
 			},
 			new Statistics()
 		);
 	}
 
+	/**
+	 * Login to the AO server with the configured accounts. Returns on success.
+	 *
+	 * @throws AccountsFrozenException if one or more accounts are frozen
+	 * @throws LoginException          if the server gave us an error logging in
+	 */
 	public function login(): void {
 		$this->isReady = false;
 		$futures = [];
@@ -148,10 +154,23 @@ class Multi {
 			$futures []= async($this->clientLogin(...), $config);
 		}
 
-		/** @var array{0:\Throwable[],1:WorkerThread[]} */
+		/** @var array{0:\Throwable[],1:WorkerFiber[]} */
 		$workers = awaitAll($futures);
-		foreach ($workers[0] as $exception) {
-			throw $exception;
+		if (count($workers[0])) {
+			$frozenAccounts = [];
+			$userNames = [];
+			foreach ($workers[0] as $exception) {
+				if ($exception instanceof AccountFrozenException) {
+					$frozenAccount = $exception->getAccount();
+					if (!isset($userNames[$frozenAccount->username])) {
+						$frozenAccounts []= $exception->getAccount();
+						$userNames[$frozenAccount->username] = true;
+					}
+				} else {
+					throw $exception;
+				}
+			}
+			throw new AccountsFrozenException(accounts: $frozenAccounts);
 		}
 		$this->logger?->notice("All workers logged in successfully.");
 		$numReady = 0;
@@ -175,7 +194,7 @@ class Multi {
 	*/
 	}
 
-	public function write(Package\Out $package, ?string $worker=null): void {
+	public function write(OutPackage $package, ?string $worker=null): void {
 		$this->getBestWorker($worker)?->write($package);
 	}
 
@@ -296,7 +315,7 @@ class Multi {
 		return $online ?? $this->getBestWorker($worker)?->isOnline($uid, $cacheOnly);
 	}
 
-	public function getBestWorker(?string $worker=null): ?Basic {
+	public function getBestWorker(?string $worker=null): ?SingleClient {
 		$worker ??= $this->mainCharacter ?? array_keys($this->connections)[0];
 		if (!isset($this->connections[$worker])) {
 			$worker = array_keys($this->connections)[0];
@@ -323,7 +342,7 @@ class Multi {
 		}
 	}
 
-	private function workerLoop(WorkerThread $worker): void {
+	private function workerLoop(WorkerFiber $worker): void {
 		while (($package = $worker->client->read()) !== null) {
 			$workerPackage = new WorkerPackage(
 				worker: $worker->config->character,
@@ -339,7 +358,7 @@ class Multi {
 		}
 	}
 
-	private function clientLogin(WorkerConfig $config): WorkerThread {
+	private function clientLogin(WorkerConfig $config): WorkerFiber {
 		do {
 			$this->logger?->notice("Connecting to server {server}", ["server" => $config->getServer()]);
 			try {
@@ -355,7 +374,7 @@ class Multi {
 			}
 		} while (!isset($connection));
 		$this->logger?->info("Connected to {server}", ["server" => $config->getServer()]);
-		$client = new Basic(
+		$client = new SingleClient(
 			logger: $this->logger,
 			parser: $this->parser ?? Parser::createDefault(),
 			bucket: $this->bucket,
@@ -373,7 +392,7 @@ class Multi {
 		$this->logger?->notice("Successfully logged in {character}", [
 			"character" => $config->character,
 		]);
-		return new WorkerThread(
+		return new WorkerFiber(
 			config: $config,
 			client: $client,
 			socket: $connection,

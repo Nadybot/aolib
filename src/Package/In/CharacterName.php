@@ -4,12 +4,12 @@ namespace AO\Package\In;
 
 use AO\Package;
 
-class CharacterName extends Package\In {
+class CharacterName extends Package\InPackage {
 	public function __construct(
 		public int $charId,
 		public string $name,
 	) {
-		parent::__construct(Package\Type::CharacterName);
+		parent::__construct(Package\PackageType::CharacterName);
 	}
 
 	public function getUid(): ?int {

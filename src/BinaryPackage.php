@@ -5,12 +5,12 @@ namespace AO;
 use function Safe\{pack, unpack};
 
 use AO\Internal\BinaryString;
-use AO\Package\Type;
+use AO\Package\PackageType;
 use Stringable;
 
 class BinaryPackage implements Stringable {
 	final public function __construct(
-		public readonly Type $type,
+		public readonly PackageType $type,
 		public readonly int $length,
 		public readonly string $body="",
 	) {
@@ -36,7 +36,7 @@ class BinaryPackage implements Stringable {
 		assert($header['length'] >= 0);
 		$binBody = substr($binary, 4);
 		return new static(
-			type: Type::from($header['type']),
+			type: PackageType::from($header['type']),
 			length: $header['length'],
 			body: $binBody,
 		);

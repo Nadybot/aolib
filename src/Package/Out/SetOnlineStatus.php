@@ -4,11 +4,11 @@ namespace AO\Package\Out;
 
 use AO\Package;
 
-class SetOnlineStatus extends Package\Out {
+class SetOnlineStatus extends Package\OutPackage {
 	public function __construct(
 		public bool $online,
 	) {
-		parent::__construct(Package\Type::SetOnlineStatus);
+		parent::__construct(Package\PackageType::SetOnlineStatus);
 	}
 
 	public static function getFormat(): string {

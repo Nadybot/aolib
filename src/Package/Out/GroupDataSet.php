@@ -4,13 +4,13 @@ namespace AO\Package\Out;
 
 use AO\{Group, Package};
 
-class GroupDataSet extends Package\Out {
+class GroupDataSet extends Package\OutPackage {
 	public function __construct(
-		public Group\Id $groupId,
+		public Group\GroupId $groupId,
 		public int $status,
 		public string $extra="\0",
 	) {
-		parent::__construct(Package\Type::PublicChannelDataSet);
+		parent::__construct(Package\PackageType::PublicChannelDataSet);
 	}
 
 	public static function getFormat(): string {

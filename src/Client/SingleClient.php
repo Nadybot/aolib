@@ -3,8 +3,22 @@
 namespace AO\Client;
 
 use function Amp\delay;
-use AO\Package\{In, Out};
-use AO\{AccountFrozenException, AccountUnfreezer, CharacterNotFoundException, Connection, Encryption, Group, LoginException, Package, Parser, Utils, WrongPacketOrderException};
+use AO\{
+	AccountUnfreezer,
+	Connection,
+	Encryption,
+	Exceptions\AccountFrozenException,
+	Exceptions\CharacterNotFoundException,
+	Exceptions\LoginException,
+	Exceptions\WrongPacketOrderException,
+	FrozenAccount,
+	Group,
+	Package,
+	Package\In,
+	Package\Out,
+	Parser,
+	Utils
+};
 use Closure;
 use Nadylib\LeakyBucket\LeakyBucket;
 use Psr\Log\LoggerInterface;
@@ -12,7 +26,7 @@ use Revolt\EventLoop;
 
 use Throwable;
 
-class Basic {
+class SingleClient {
 	public const UID_NONE = 0xFFFFFFFF;
 
 	/** @var array<int,string> */
@@ -104,11 +118,11 @@ class Basic {
 	/**
 	 * Get infomation about a public group we're in
 	 *
-	 * @param string|Group\Id $id the name or id of the group
+	 * @param string|Group\GroupId $id the name or id of the group
 	 *
 	 * @return Group|null Information about the group, or NULL, if we're not in it
 	 */
-	public function getGroup(string|Group\Id $id): ?Group {
+	public function getGroup(string|Group\GroupId $id): ?Group {
 		if (is_string($id)) {
 			return $this->publicGroups[$id] ?? null;
 		}
@@ -219,10 +233,10 @@ class Basic {
 	/**
 	 * Read the next package, waiting for it
 	 *
-	 * @return Package\In|null Either null, if the connection was closed, or
-	 *                         the next package that was read
+	 * @return Package\InPackage|null Either null, if the connection was closed, or
+	 *                                the next package that was read
 	 */
-	public function read(): ?Package\In {
+	public function read(): ?Package\InPackage {
 		$binPackage = $this->connection->read();
 		if ($binPackage === null) {
 			$this->logger?->info("Stream has closed the connection");
@@ -234,7 +248,7 @@ class Basic {
 		return $package;
 	}
 
-	public function write(Package\Out $package): void {
+	public function write(Package\OutPackage $package): void {
 		$this->logger?->debug("Sending package {package}", [
 			"package" => $package,
 		]);
@@ -299,7 +313,12 @@ class Basic {
 					return;
 				}
 				$parts = explode(": ", $errorMsgs[0] ?? "");
-				throw new AccountFrozenException($parts[1] ?? "");
+				throw new AccountFrozenException(
+					account: new FrozenAccount(
+						username: $username,
+						subscriptionId: isset($parts[1]) ? (int)$parts[1] : null,
+					),
+				);
 			}
 			$this->logger?->error("Error from login server: {error}", [
 				"error" => $response->error,
@@ -344,7 +363,7 @@ class Basic {
 	 * like adding buddies to the buddylist, or tracking
 	 * public groups the bot is in. This happens here.
 	 */
-	protected function handleIncomingPackage(Package\In $package): void {
+	protected function handleIncomingPackage(Package\InPackage $package): void {
 		if ($package instanceof In\CharacterLookupResult) {
 			$this->handleCharacterLookupResult($package);
 		} elseif ($package instanceof In\CharacterName) {

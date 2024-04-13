@@ -5,10 +5,9 @@ namespace AO\Tests;
 use function Amp\File\openFile;
 use function Safe\{hex2bin};
 
-use AO\Group;
-use AO\Package\{In,Out};
-use AO\{BinaryPackage, Package, Parser};
-use AO\{Connection};
+use AO\BinaryPackage\BinaryPackageIn;
+use AO\Package\{In, Out, PackageType};
+use AO\{BinaryPackage, Connection, Group, Package, Parser};
 use Beste\Psr\Log\TestLogger;
 use Exception;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -18,8 +17,8 @@ use PHPUnit\Framework\TestCase;
 final class ParserTest extends TestCase {
 	public function testException(): void {
 		$this->expectException(Exception::class);
-		$package = new BinaryPackage\In(
-			type: Package\Type::ChatCommand,
+		$package = new BinaryPackageIn(
+			type: PackageType::ChatCommand,
 			length: 0,
 			body: "",
 		);
@@ -27,11 +26,11 @@ final class ParserTest extends TestCase {
 		$parser->parseBinaryPackage($package);
 	}
 
-	/** @return list<array{BinaryPackage\In, class-string}> */
+	/** @return list<array{BinaryPackageIn, class-string}> */
 	public static function exampleBinaryPacketsIn(): array {
 		return [
 			[
-				new BinaryPackage\In(type: Package\Type::BuddyAdd, length: 15, body: hex2bin("0000303900000001000101")),
+				new BinaryPackageIn(type: PackageType::BuddyAdd, length: 15, body: hex2bin("0000303900000001000101")),
 				In\BuddyState::class,
 			],
 		];
@@ -39,7 +38,7 @@ final class ParserTest extends TestCase {
 
 	/** @psalm-param class-string $expectedClass */
 	#[DataProvider('exampleBinaryPacketsIn')]
-	public function testInboundParser(BinaryPackage\In $package, string $expectedClass): void {
+	public function testInboundParser(BinaryPackageIn $package, string $expectedClass): void {
 		$parser = Parser::createDefault();
 		$result = $parser->parseBinaryPackage($package);
 		$this->assertInstanceOf($expectedClass, $result);
@@ -52,7 +51,7 @@ final class ParserTest extends TestCase {
 			"Out\\Ping" => [new Out\Pong(extra: random_bytes(random_int(1, 64)))],
 			"In\\BuddyAdded" => [new In\BuddyState(charId: random_int(1, 2^32), online: false, extra: "abc")],
 			"Out\\LoginRequest" => [new Out\LoginRequest(username: "Zero", key: "OMGsupers3cr3t", zero: 0)],
-			"In\\GroupAnnounced" => [new In\GroupJoined(groupId: new Group\Id(type: Group\Type::Org, number: 12345), groupName: "Public", flags: 0, unknown: "")],
+			"In\\GroupAnnounced" => [new In\GroupJoined(groupId: new Group\GroupId(type: Group\GroupType::Org, number: 12345), groupName: "Public", flags: 0, unknown: "")],
 			"Out\\PrivateGroupMessage" => [new Out\PrivateChannelMessage(channelId: 1, message: "lol?")],
 		];
 	}
@@ -74,7 +73,7 @@ final class ParserTest extends TestCase {
 		];
 		$parser = Parser::createDefault();
 		$binary = join("", array_map("chr", $data));
-		$binPackage = BinaryPackage\In::fromBinary($binary);
+		$binPackage = BinaryPackageIn::fromBinary($binary);
 		$package = $parser->parseBinaryPackage($binPackage);
 		$this->assertInstanceOf(expected: In\GroupMessage::class, actual: $package);
 	}
@@ -92,7 +91,7 @@ final class ParserTest extends TestCase {
 		];
 		$parser = Parser::createDefault();
 		$binary = join("", array_map("chr", $data));
-		$binPackage = BinaryPackage\In::fromBinary($binary);
+		$binPackage = BinaryPackageIn::fromBinary($binary);
 		$package = $parser->parseBinaryPackage($binPackage);
 		$this->assertInstanceOf(expected: In\GroupMessage::class, actual: $package);
 	}

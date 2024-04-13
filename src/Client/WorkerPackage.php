@@ -8,8 +8,8 @@ use Stringable;
 class WorkerPackage implements Stringable {
 	public function __construct(
 		public readonly string $worker,
-		public readonly Package\In $package,
-		public readonly Basic $client,
+		public readonly Package\InPackage $package,
+		public readonly SingleClient $client,
 	) {
 	}
 

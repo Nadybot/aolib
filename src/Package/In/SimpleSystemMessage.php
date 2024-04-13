@@ -4,11 +4,11 @@ namespace AO\Package\In;
 
 use AO\Package;
 
-class SimpleSystemMessage extends Package\In {
+class SimpleSystemMessage extends Package\InPackage {
 	public function __construct(
 		public string $message,
 	) {
-		parent::__construct(Package\Type::SimpleSystemMessage);
+		parent::__construct(Package\PackageType::SimpleSystemMessage);
 	}
 
 	public static function getFormat(): string {

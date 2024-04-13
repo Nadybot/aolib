@@ -4,14 +4,14 @@ namespace AO\Package\In;
 
 use AO\Package;
 
-class PrivateChannelMessage extends Package\In {
+class PrivateChannelMessage extends Package\InPackage {
 	public function __construct(
 		public int $channelId,
 		public int $charId,
 		public string $message,
 		public string $extra,
 	) {
-		parent::__construct(Package\Type::PrivateChannelMessage);
+		parent::__construct(Package\PackageType::PrivateChannelMessage);
 	}
 
 	public static function getFormat(): string {

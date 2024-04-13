@@ -5,10 +5,10 @@ namespace AO\Client;
 use Amp\Socket\Socket;
 use Stringable;
 
-class WorkerThread implements Stringable {
+class WorkerFiber implements Stringable {
 	public function __construct(
 		public readonly WorkerConfig $config,
-		public readonly Basic $client,
+		public readonly SingleClient $client,
 		public readonly Socket $socket,
 	) {
 	}

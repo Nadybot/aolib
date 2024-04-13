@@ -4,11 +4,11 @@ namespace AO\Package\In;
 
 use AO\Package;
 
-class BuddyRemoved extends Package\In {
+class BuddyRemoved extends Package\InPackage {
 	public function __construct(
 		public int $charId,
 	) {
-		parent::__construct(Package\Type::BuddyRemove);
+		parent::__construct(Package\PackageType::BuddyRemove);
 	}
 
 	public static function getFormat(): string {

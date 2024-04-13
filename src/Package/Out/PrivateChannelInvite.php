@@ -4,11 +4,11 @@ namespace AO\Package\Out;
 
 use AO\Package;
 
-class PrivateChannelInvite extends Package\Out {
+class PrivateChannelInvite extends Package\OutPackage {
 	public function __construct(
 		public int $charId,
 	) {
-		parent::__construct(Package\Type::PrivateChannelKick);
+		parent::__construct(Package\PackageType::PrivateChannelKick);
 	}
 
 	public static function getFormat(): string {

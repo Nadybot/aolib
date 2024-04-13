@@ -10,7 +10,7 @@ class Tell extends Package\Out\RateLimited {
 		public string $message,
 		public string $extra="\0",
 	) {
-		parent::__construct(Package\Type::PrivateMessage);
+		parent::__construct(Package\PackageType::PrivateMessage);
 	}
 
 	public static function getFormat(): string {

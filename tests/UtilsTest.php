@@ -2,7 +2,7 @@
 
 namespace AO\Tests;
 
-use AO\Package\Type;
+use AO\Package\PackageType;
 use AO\Utils;
 use Closure;
 use PHPUnit\Framework\Attributes\{DataProvider, Small};
@@ -46,12 +46,12 @@ final class UtilsTest extends TestCase {
 			],
 			[__CLASS__ . "->{closure}", fn () => 0],
 			[
-				"WeakReference->get()",
+				WeakReference::class . "->get()",
 				WeakReference::create(new \stdClass())->get(...),
 			],
 			[
-				"AO\Package\Type->classIn()",
-				Type::AdmMuxInfo->classIn(...),
+				PackageType::class . "->classIn()",
+				PackageType::AdmMuxInfo->classIn(...),
 			],
 		];
 	}

@@ -4,10 +4,10 @@ namespace AO;
 
 use function Safe\unpack;
 
+use AO\BinaryPackage\BinaryPackageIn;
 use AO\Internal\MaybeBinaryString;
 use AO\Package\Attributes\Param;
-use AO\Package\In;
-use AO\{BinaryPackage, Package};
+use AO\Package\{In, InPackage, OutPackage};
 use Psr\Log\LoggerInterface;
 
 class Parser {
@@ -23,9 +23,9 @@ class Parser {
 		);
 	}
 
-	/** @phpstan-return ($package is BinaryPackage\In ? Package\In : Package\Out) */
+	/** @phpstan-return ($package is BinaryPackageIn ? InPackage : OutPackage) */
 	public function parseBinaryPackage(BinaryPackage $package): Package {
-		$class = ($package instanceof BinaryPackage\In)
+		$class = ($package instanceof BinaryPackageIn)
 			? $package->type->classIn()
 			: $package->type->classOut();
 		if (!class_exists($class)) {
@@ -81,10 +81,10 @@ class Parser {
 		}
 		$args = $this->orderArgs($class, ...$args);
 		$result = new $class(...$args);
-		if ($package instanceof BinaryPackage\In) {
-			assert($result instanceof Package\In);
+		if ($package instanceof BinaryPackageIn) {
+			assert($result instanceof InPackage);
 		} else {
-			assert($result instanceof Package\Out);
+			assert($result instanceof OutPackage);
 		}
 		$this->logger?->debug("Parsed {binary_package} into {package}", [
 			"binary_package" => $package,
@@ -259,11 +259,11 @@ class Parser {
 	/**
 	 * @psalm-param class-string $class
 	 *
-	 * @param null|bool|int|string|ExtendedMessage|bool[]|string[]|int[]|Group\Id $args
+	 * @param null|bool|int|string|ExtendedMessage|bool[]|string[]|int[]|Group\GroupId $args
 	 *
-	 * @return list<null|bool|int|string|ExtendedMessage|bool[]|string[]|int[]|Group\Id>
+	 * @return list<null|bool|int|string|ExtendedMessage|bool[]|string[]|int[]|Group\GroupId>
 	 */
-	private function orderArgs(string $class, null|bool|int|string|ExtendedMessage|array|Group\Id ...$args): array {
+	private function orderArgs(string $class, null|bool|int|string|ExtendedMessage|array|Group\GroupId ...$args): array {
 		$orderedArgs = [];
 		$refClass = new \ReflectionClass($class);
 		$refFunc = $refClass->getMethod("__construct");
@@ -284,7 +284,7 @@ class Parser {
 		return $orderedArgs;
 	}
 
-	/** @return list<string|int|bool|Group\Id|bool[]|string[]|int[]> */
+	/** @return list<string|int|bool|Group\GroupId|bool[]|string[]|int[]> */
 	private function parseFormat(string $format, string $data): array {
 		if ($format === "") {
 			return [];
@@ -323,7 +323,7 @@ class Parser {
 					"id" => $unp['id'],
 				]);
 				return [
-					new Group\Id(type: $unp['type'], number: $unp['id']),
+					new Group\GroupId(type: $unp['type'], number: $unp['id']),
 					...$this->parseFormat(substr($format, 1), substr($data, 5)),
 				];
 			case "i":

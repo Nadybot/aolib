@@ -4,11 +4,11 @@ namespace AO\Package\In;
 
 use AO\{Group, Package};
 
-class GroupLeft extends Package\In {
+class GroupLeft extends Package\InPackage {
 	public function __construct(
-		public Group\Id $groupId,
+		public Group\GroupId $groupId,
 	) {
-		parent::__construct(Package\Type::PublicChannelLeft);
+		parent::__construct(Package\PackageType::PublicChannelLeft);
 	}
 
 	public static function getFormat(): string {

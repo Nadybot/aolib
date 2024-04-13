@@ -4,5 +4,5 @@ namespace AO\Package\Out;
 
 use AO\Package;
 
-abstract class RateLimited extends Package\Out {
+abstract class RateLimited extends Package\OutPackage {
 }

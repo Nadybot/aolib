@@ -4,12 +4,12 @@ namespace AO\Package\Out;
 
 use AO\{Group, Package};
 
-class ClientmodeGet extends Package\Out {
+class ClientmodeGet extends Package\OutPackage {
 	public function __construct(
 		public int $unknown1,
-		public Group\Id $groupId,
+		public Group\GroupId $groupId,
 	) {
-		parent::__construct(Package\Type::ClientModeGet);
+		parent::__construct(Package\PackageType::ClientModeGet);
 	}
 
 	public static function getFormat(): string {

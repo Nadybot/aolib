@@ -4,9 +4,9 @@ namespace AO\Package\In;
 
 use AO\Package;
 
-class LoginOk extends Package\In {
+class LoginOk extends Package\InPackage {
 	public function __construct() {
-		parent::__construct(Package\Type::LoginOK);
+		parent::__construct(Package\PackageType::LoginOK);
 	}
 
 	public static function getFormat(): string {

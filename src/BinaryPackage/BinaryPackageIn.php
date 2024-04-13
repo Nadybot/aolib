@@ -4,5 +4,5 @@ namespace AO\BinaryPackage;
 
 use AO\BinaryPackage;
 
-class Out extends BinaryPackage {
+class BinaryPackageIn extends BinaryPackage {
 }

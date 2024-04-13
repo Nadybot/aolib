@@ -4,14 +4,16 @@ namespace AO;
 
 use function Safe\{json_encode, pack};
 
+use AO\Group\GroupId;
 use AO\Package\Attributes\Param;
+use AO\Package\PackageType;
 use Exception;
 use ReflectionClass;
 use Safe\Exceptions\JsonException;
 use Stringable;
 
 abstract class Package implements Stringable {
-	public function __construct(public readonly Package\Type $type) {
+	public function __construct(public readonly PackageType $type) {
 	}
 
 	public function __toString() {
@@ -23,7 +25,7 @@ abstract class Package implements Stringable {
 			if ($refProp->isInitialized($this) === false) {
 				continue;
 			}
-			if ($value instanceof Stringable) {
+			if ($value instanceof \Stringable) {
 				$value = (string)$value;
 			} elseif ($value instanceof \UnitEnum) {
 				$value = $value->name;
@@ -66,7 +68,7 @@ abstract class Package implements Stringable {
 
 	abstract public static function getFormat(): string;
 
-	/** @return list<bool|int|string|string[]|int[]|Group\Id> */
+	/** @return list<bool|int|string|string[]|int[]|GroupId> */
 	protected function getPackageValues(): array {
 		$result = [];
 		$refClass = new \ReflectionClass($this);
@@ -92,8 +94,8 @@ abstract class Package implements Stringable {
 		return $result;
 	}
 
-	/** @param bool|int|string|string[]|int[]|Group\Id $value */
-	protected function toFormat(string $format, bool|int|string|array|Group\Id $value): string {
+	/** @param bool|int|string|string[]|int[]|GroupId $value */
+	protected function toFormat(string $format, bool|int|string|array|GroupId $value): string {
 		switch ($format) {
 			case "B":
 				assert(is_bool($value));
@@ -106,7 +108,7 @@ abstract class Package implements Stringable {
 				return pack("n", strlen($value)) . $value;
 			case "G":
 				assert(is_object($value));
-				assert($value instanceof Group\Id);
+				assert($value instanceof GroupId);
 				return pack("CN", $value->type->value, $value->number);
 			case "i":
 				assert(is_array($value));

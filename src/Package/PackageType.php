@@ -2,7 +2,7 @@
 
 namespace AO\Package;
 
-enum Type: int {
+enum PackageType: int {
 	/** @psalm-return class-string */
 	public function classIn(): string {
 		return match ($this) {

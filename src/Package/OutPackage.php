@@ -4,10 +4,10 @@ namespace AO\Package;
 
 use AO\{BinaryPackage, Package};
 
-abstract class In extends Package {
-	public function toBinaryPackage(): BinaryPackage\In {
+abstract class OutPackage extends Package {
+	public function toBinaryPackage(): BinaryPackage\BinaryPackageOut {
 		$package = parent::toBinaryPackage();
-		return new BinaryPackage\In(
+		return new BinaryPackage\BinaryPackageOut(
 			type: $package->type,
 			length: $package->length,
 			body: $package->body,

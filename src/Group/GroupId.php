@@ -6,14 +6,14 @@ use function Safe\pack;
 
 use Stringable;
 
-class Id implements Stringable {
-	public Type $type;
+class GroupId implements Stringable {
+	public GroupType $type;
 
 	public function __construct(
-		int|Type $type,
+		int|GroupType $type,
 		public int $number,
 	) {
-		$this->type = is_int($type) ? Type::from($type) : $type;
+		$this->type = is_int($type) ? GroupType::from($type) : $type;
 	}
 
 	public function __toString(): string {

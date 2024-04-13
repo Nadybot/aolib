@@ -4,7 +4,7 @@ namespace AO\Package\In;
 
 use AO\Package;
 
-class LoginCharlist extends Package\In {
+class LoginCharlist extends Package\InPackage {
 	/**
 	 * @param int[]    $charIds
 	 * @param string[] $characters
@@ -17,7 +17,7 @@ class LoginCharlist extends Package\In {
 		public array $levels,
 		public array $online,
 	) {
-		parent::__construct(Package\Type::LoginCharlist);
+		parent::__construct(Package\PackageType::LoginCharlist);
 	}
 
 	public static function getFormat(): string {
