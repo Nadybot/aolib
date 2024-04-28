@@ -6,6 +6,7 @@
         <properties>
             <property name="rootNamespaces" type="array">
                 <element key="src" value="AO"/>
+                <element key="tests" value="AO\Tests"/>
             </property>
             <property name="skipDirs" type="array">
                 <element value="vendor"/>
