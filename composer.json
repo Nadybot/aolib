@@ -16,7 +16,7 @@
     "thecodingmachine/safe": "^2.0",
     "psr/log": "^1|^2|^3",
     "amphp/file": "^3.0",
-    "nadylib/leaky-bucket": "dev-main",
+    "nadylib/leaky-bucket": "^0.1.0",
     "amphp/pipeline": "^1.1"
   },
   "autoload": {
@@ -25,12 +25,6 @@
       "AO\\Tests\\": "tests"
     }
   },
-  "repositories": [
-    {
-      "type": "git",
-      "url": "https://github.com/Nadybot/leaky-bucket.git"
-    }
-  ],
   "require-dev": {
     "nadybot/nadystyle": "^1.0.0",
     "composer-phar/php-cs-fixer": "^3.51.0",
