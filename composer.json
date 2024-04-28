@@ -26,18 +26,13 @@
     }
   },
   "repositories": [
-		{
-			"type": "git",
-			"url": "https://github.com/Nadybot/Nadystyle.git"
-		},
     {
       "type": "git",
       "url": "https://github.com/Nadybot/leaky-bucket.git"
     }
   ],
-
   "require-dev": {
-    "nadybot/nadystyle": "dev-main",
+    "nadybot/nadystyle": "^1.0.0",
     "composer-phar/php-cs-fixer": "^3.51.0",
     "squizlabs/php_codesniffer": "^3.8",
     "composer-phar/phpstan": "^1.10",
@@ -45,7 +40,9 @@
     "phpunit/phpunit": "^10.0",
     "beste/psr-testlogger": "^1.0"
   },
-  "license": ["AGPL-3.0-or-later"],
+  "license": [
+    "AGPL-3.0-or-later"
+  ],
   "scripts": {
     "tests": [
       "phpunit -c phpunit.xml",

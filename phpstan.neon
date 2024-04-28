@@ -5,5 +5,7 @@ parameters:
   parallel:
     maximumNumberOfProcesses: 6
   phpVersion: 80300
+  ignoreErrors:
+    - '#Parameter \#1 \$closure of function Amp\\async expects#'
 includes:
   - vendor/thecodingmachine/phpstan-safe-rule/phpstan-safe-rule.neon
