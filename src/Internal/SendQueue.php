@@ -26,11 +26,11 @@ final class SendQueue {
 	}
 
 	public function shift(): ?SendQueueItem {
-		$priorities = SendPriority::cases();
+		$priorities = array_keys($this->queue);
 		asort($priorities);
 		foreach ($priorities as $priority) {
-			if (isset($this->queue[$priority->value]) && count($this->queue[$priority->value]) > 0) {
-				return array_shift($this->queue[$priority->value]);
+			if (isset($this->queue[$priority]) && count($this->queue[$priority]) > 0) {
+				return array_shift($this->queue[$priority]);
 			}
 		}
 		return null;
