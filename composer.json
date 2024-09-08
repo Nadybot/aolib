@@ -40,7 +40,7 @@
   "scripts": {
     "tests": [
       "phpunit -c phpunit.xml",
-      "phpstan analyse --memory-limit 512M --no-progress --no-ansi -c phpstan.neon",
+      "phpstan analyse --memory-limit 512M --no-progress --no-ansi",
       "phpcs --no-colors --report=checkstyle -q src tests"
     ]
   }
