@@ -8,7 +8,7 @@ use function Amp\{async, delay};
 
 use Amp\Pipeline\{ConcurrentIterator, Queue};
 use AO\Exceptions\{AccountFrozenException, AccountsFrozenException, LoginException};
-use AO\{Group, Group\GroupId, Package, Package\OutPackage, Parser, Utils};
+use AO\{Group, Group\GroupId, Package, Package\OutPackage, Parser, SendPriority, Utils};
 use Closure;
 use InvalidArgumentException;
 use Nadylib\LeakyBucket\LeakyBucket;
@@ -194,8 +194,8 @@ class MultiClient {
 	*/
 	}
 
-	public function write(OutPackage $package, ?string $worker=null): void {
-		$this->getBestWorker($worker)?->write($package);
+	public function write(OutPackage $package, ?string $worker=null, SendPriority $priority=SendPriority::Medium): void {
+		$this->getBestWorker($worker)?->write($package, $priority);
 	}
 
 	/** @return ConcurrentIterator<WorkerPackage> */
