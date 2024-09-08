@@ -277,6 +277,10 @@ class SingleClient {
 		}
 	}
 
+	public function getQueueSize(): int {
+		return $this->sendQueue->getSize();
+	}
+
 	public function disconnect(): void {
 		$this->connection->end();
 	}
