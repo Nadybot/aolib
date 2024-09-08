@@ -3,6 +3,9 @@
 namespace AO\Client;
 
 use function Amp\delay;
+
+use Amp\DeferredFuture;
+use AO\Internal\SendQueue;
 use AO\{
 	AccountUnfreezer,
 	Connection,
@@ -17,6 +20,7 @@ use AO\{
 	Package\In,
 	Package\Out,
 	Parser,
+	SendPriority,
 	Utils
 };
 use Closure;
@@ -63,6 +67,8 @@ class SingleClient {
 
 	private readonly LeakyBucket $bucket;
 
+	private SendQueue $sendQueue;
+
 	private ?string $loggedInChar = null;
 
 	private ?int $loggedInUid = null;
@@ -73,7 +79,9 @@ class SingleClient {
 		private ?LoggerInterface $logger=null,
 		?LeakyBucket $bucket=null,
 		private ?AccountUnfreezer $accountUnfreezer=null,
+		?SendQueue $sendQueue=null
 	) {
+		$this->sendQueue = $sendQueue ?? new SendQueue();
 		$this->bucket = $bucket ?? new LeakyBucket(size: 5, refillDelay: 1.0);
 	}
 
@@ -248,14 +256,18 @@ class SingleClient {
 		return $package;
 	}
 
-	public function write(Package\OutPackage $package): void {
+	public function write(Package\OutPackage $package, SendPriority $priority=SendPriority::Medium): void {
 		$this->logger?->debug('Sending package {package}', [
 			'package' => $package,
 		]);
 		$binPackage = $package->toBinaryPackage();
 		if ($package instanceof Package\Out\RateLimited) {
 			$this->logger?->debug('Sending rate-limited package via bucket-queue');
-			$this->bucket->take(callback: fn () => $this->connection->write($binPackage->toBinary()));
+			$suspension = new DeferredFuture();
+			$future = $suspension->getFuture();
+			$this->sendQueue->push($package, $priority, $suspension);
+			$this->bucket->take(callback: $this->sendNextQueueItem(...));
+			$future->await();
 		} else {
 			$this->logger?->debug('Sending non-rate-limited package instantly');
 			$this->connection->write($binPackage->toBinary());
@@ -463,6 +475,17 @@ class SingleClient {
 					'exception' => $e,
 				]);
 			}
+		}
+	}
+
+	private function sendNextQueueItem(): void {
+		$item = $this->sendQueue->shift();
+		if (!isset($item)) {
+			return;
+		}
+		$this->connection->write($item->package->toBinaryPackage()->toBinary());
+		if (!$item->future->isComplete()) {
+			$item->future->complete();
 		}
 	}
 
