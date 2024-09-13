@@ -8,7 +8,7 @@ class PrivateChannelInvite extends Package\OutPackage {
 	public function __construct(
 		public int $charId,
 	) {
-		parent::__construct(Package\PackageType::PrivateChannelKick);
+		parent::__construct(Package\PackageType::PrivateChannelInvite);
 	}
 
 	public static function getFormat(): string {
