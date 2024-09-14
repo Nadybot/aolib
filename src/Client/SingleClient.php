@@ -6,6 +6,7 @@ use function Amp\delay;
 
 use Amp\DeferredFuture;
 use AO\Internal\SendQueue;
+use AO\Package\Out\Pong;
 use AO\{
 	AccountUnfreezer,
 	Connection,
@@ -390,6 +391,8 @@ class SingleClient {
 			$this->handleBuddyRemoved($package);
 		} elseif ($package instanceof In\GroupJoined) {
 			$this->handleGroupJoined($package);
+		} elseif ($package instanceof In\Ping) {
+			$this->handlePing($package);
 		} elseif ($package instanceof In\GroupLeft) {
 			$this->handleGroupLeft($package);
 		}
@@ -433,8 +436,8 @@ class SingleClient {
 	}
 
 	protected function handleGroupJoined(In\GroupJoined $package): void {
-		if (!$this->isReady) {
-			EventLoop::defer($this->triggerOnReady(...));
+		if (!$this->isReady && $this->lastPong < 1) {
+			$this->write(new Pong('ready'));
 		}
 		$group = new Group(
 			id: $package->groupId,
@@ -445,6 +448,12 @@ class SingleClient {
 			'group' => $group,
 		]);
 		$this->publicGroups[$package->groupName] = $group;
+	}
+
+	protected function handlePing(In\Ping $package): void {
+		if (!$this->isReady && $package->extra === 'ready') {
+			EventLoop::defer($this->triggerOnReady(...));
+		}
 	}
 
 	protected function handleGroupLeft(In\GroupLeft $package): void {
