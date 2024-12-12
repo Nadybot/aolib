@@ -6,7 +6,6 @@ use function Amp\delay;
 
 use Amp\DeferredFuture;
 use AO\Internal\SendQueue;
-use AO\Package\Out\Pong;
 use AO\{
 	AccountUnfreezer,
 	Connection,
@@ -51,6 +50,8 @@ class SingleClient {
 
 	private float $lastPackage = 0;
 	private float $lastPong = 0;
+
+	private ?string $readyHandler = null;
 
 	/**
 	 * True when the bot has finished receiving the initial
@@ -396,6 +397,12 @@ class SingleClient {
 		} elseif ($package instanceof In\GroupLeft) {
 			$this->handleGroupLeft($package);
 		}
+		if (!$this->isReady) {
+			if (isset($this->readyHandler)) {
+				EventLoop::cancel($this->readyHandler);
+			}
+			$this->readyHandler = EventLoop::delay(1, $this->triggerOnReady(...));
+		}
 	}
 
 	protected function handleCharacterLookupResult(In\CharacterLookupResult $package): void {
@@ -436,9 +443,6 @@ class SingleClient {
 	}
 
 	protected function handleGroupJoined(In\GroupJoined $package): void {
-		if (!$this->isReady && $this->lastPong < 1) {
-			$this->write(new Pong('ready'));
-		}
 		$group = new Group(
 			id: $package->groupId,
 			name: $package->groupName,
