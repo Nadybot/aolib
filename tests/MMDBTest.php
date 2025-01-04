@@ -31,4 +31,24 @@ final class MMDBTest extends TestCase {
 		$mmdb = AsyncMMDBClient::createDefault();
 		$this->assertSame($expected, $mmdb->getMessageString($categoryId, $messageId));
 	}
+
+	/** @return list<array{int, int}> */
+	public static function exampleMMDBInstanceCounts(): array {
+		return [
+			[20_000, 38],
+		];
+	}
+
+	#[DataProvider('exampleMMDBInstanceCounts')]
+	public function testFindAllInstances(int $categoryId, int $expectedCount): void {
+		$mmdb = AsyncMMDBClient::createDefault();
+		$this->assertCount($expectedCount, $mmdb->findAllInstancesInCategory($categoryId));
+	}
+
+	public function testGetCategories(): void {
+		$mmdb = AsyncMMDBClient::createDefault();
+		$foundCategories = $mmdb->getCategories();
+		$this->assertNotNull($foundCategories);
+		$this->assertCount(52, $foundCategories);
+	}
 }

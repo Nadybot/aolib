@@ -47,7 +47,7 @@ class Parser {
 				assert(is_int($args[1]));
 				assert(is_string($args[2]));
 				/* Hack to support extended messages */
-				if ($args[1] === 0 && substr($args[2], 0, 2) == '~&') {
+				if ($args[1] === 0 && substr($args[2], 0, 2) === '~&') {
 					$this->logger?->debug('Extended message {message} found', [
 						'message' => $args[2],
 					]);
@@ -59,7 +59,7 @@ class Parser {
 				}
 				break;
 			case In\SystemMessage::class:
-				assert(count($args) == 4);
+				assert(count($args) === 4);
 				assert(is_int($args[2]));
 				assert(is_string($args[3]));
 				$categoryId = 20_000;

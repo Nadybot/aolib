@@ -41,7 +41,8 @@
     "tests": [
       "phpunit -c phpunit.xml",
       "phpstan analyse --memory-limit 512M --no-progress --no-ansi",
-      "phpcs --no-colors --report=checkstyle -q src tests"
+      "phpcs --no-colors --report=checkstyle -q src tests",
+      "(command -v mago && mago lint) || true"
     ]
   }
 }

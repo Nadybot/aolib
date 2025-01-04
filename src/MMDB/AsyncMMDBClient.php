@@ -92,12 +92,11 @@ class AsyncMMDBClient implements MMDBClient {
 		// find all instances
 		$instances = [];
 		$instance = $this->readEntry();
-		$previousInstance = null;
-		while ($previousInstance == null || $instance->id > $previousInstance->id) {
+		do {
 			$instances[] = $instance;
 			$previousInstance = $instance;
 			$instance = $this->readEntry();
-		}
+		} while ($instance->id > $previousInstance->id);
 
 		return $instances;
 	}
@@ -110,12 +109,11 @@ class AsyncMMDBClient implements MMDBClient {
 		// find all categories
 		$categories = [];
 		$category = $this->readEntry();
-		$previousCategory = null;
-		while ($previousCategory == null || $category->id > $previousCategory->id) {
+		do {
 			$categories[] = $category;
 			$previousCategory = $category;
 			$category = $this->readEntry();
-		}
+		} while ($category->id > $previousCategory->id);
 
 		return $categories;
 	}
@@ -134,10 +132,10 @@ class AsyncMMDBClient implements MMDBClient {
 			$previousEntry = $entry;
 			$entry = $this->readEntry();
 
-			if ($previousEntry != null && $entry->id < $previousEntry->id) {
+			if ($previousEntry !== null && $entry->id < $previousEntry->id) {
 				return null;
 			}
-		} while ($id != $entry->id);
+		} while ($id !== $entry->id);
 
 		return $entry;
 	}

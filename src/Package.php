@@ -16,7 +16,7 @@ abstract class Package implements Stringable {
 	public function __construct(public readonly PackageType $type) {
 	}
 
-	public function __toString() {
+	public function __toString(): string {
 		$values = [];
 		$refClass = new ReflectionClass($this);
 		$props = get_object_vars($this);
