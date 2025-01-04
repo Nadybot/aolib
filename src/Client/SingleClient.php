@@ -397,7 +397,7 @@ class SingleClient {
 		} elseif ($package instanceof In\GroupLeft) {
 			$this->handleGroupLeft($package);
 		}
-		if (!$this->isReady) {
+		if (!$this->isReady && isset($this->loggedInUid)) {
 			if (isset($this->readyHandler)) {
 				EventLoop::cancel($this->readyHandler);
 			}
