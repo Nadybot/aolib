@@ -152,7 +152,7 @@ class AsyncMMDBClient implements MMDBClient {
 		if ($packed === null || strlen($packed) < 4) {
 			throw new \Exception('The MMDB file is broken');
 		}
-		$unpacked = unpack('L', $packed);
+		$unpacked = unpack('V', $packed);
 		return array_pop($unpacked);
 	}
 
