@@ -8,6 +8,7 @@ use Amp\DeferredFuture;
 use AO\Internal\SendQueue;
 use AO\{
 	AccountUnfreezer,
+	Character,
 	Connection,
 	Encryption,
 	Exceptions\AccountFrozenException,
@@ -24,6 +25,7 @@ use AO\{
 	Utils
 };
 use Closure;
+use Exception;
 use Nadylib\LeakyBucket\LeakyBucket;
 use Psr\Log\LoggerInterface;
 use Revolt\EventLoop;
@@ -126,7 +128,7 @@ class SingleClient {
 	}
 
 	/**
-	 * Get infomation about a public group we're in
+	 * Get information about a public group we're in
 	 *
 	 * @param string|Group\GroupId $id the name or id of the group
 	 *
@@ -374,6 +376,89 @@ class SingleClient {
 		}
 		$this->loggedInChar = $character;
 		$this->loggedInUid = $uid;
+	}
+
+	/**
+	 * Get a list of all characters on the given account
+	 *
+	 * @param string $username Username to login with
+	 * @param string $password Password to login with
+	 *
+	 * @return list<Character> The characters on this account
+	 */
+	public function getChars(string $username, string $password): array {
+		if (isset($this->loggedInUid) || isset($this->loggedInChar)) {
+			throw new Exception('Cannot get list of characters with an already logged in connection');
+		}
+		$this->loggedInChar = null;
+		$this->loggedInUid = null;
+		$this->logger?->debug("Logging in with username {$username}", ['username' => $username]);
+		$this->publicGroups = [];
+		$this->buddylist = [];
+		$loginSeed = $this->read();
+		if ($loginSeed === null) {
+			throw new LoginException('No login seed received');
+		}
+		if (!($loginSeed instanceof In\LoginSeed)) {
+			throw new WrongPacketOrderException(
+				'Expected ' . In\LoginSeed::class . ', got ' . $loginSeed::class
+			);
+		}
+		$this->logger?->debug('Received login seed {seed}, calculating reply', ['seed' => $loginSeed->serverSeed]);
+		$key = Encryption\TEA::generateLoginKey(
+			serverKey: $loginSeed->serverSeed,
+			username: $username,
+			password: $password,
+		);
+		$this->write(new Out\LoginRequest(
+			username: $username,
+			key: $key,
+		));
+		$response = $this->read();
+		if ($response === null) {
+			throw new LoginException('Connection unexpectedly closed');
+		}
+		if ($response instanceof In\LoginError) {
+			$errorMsgs = explode('|', $response->error);
+			if (count($errorMsgs) === 3 && $errorMsgs[2] === '/Account system denies login') {
+				if (isset($this->accountUnfreezer) && $this->accountUnfreezer->unfreeze()) {
+					$this->logger?->notice('Account {account} successfully unfrozen, waiting {delay}s', [
+						'account' => $username,
+						'delay' => 5,
+					]);
+					$this->accountUnfreezer = null;
+					delay(5);
+					return $this->getChars(...func_get_args());
+				}
+				$parts = explode(': ', $errorMsgs[0] ?? '');
+				throw new AccountFrozenException(
+					account: new FrozenAccount(
+						username: $username,
+						subscriptionId: isset($parts[1]) ? (int)$parts[1] : null,
+					),
+				);
+			}
+			$this->logger?->error('Error from login server: {error}', [
+				'error' => $response->error,
+			]);
+			throw new LoginException($response->error);
+		}
+		if (!($response instanceof In\LoginCharlist)) {
+			throw new WrongPacketOrderException(
+				'Expected ' . In\LoginCharlist::class . ', got ' . $response::class
+			);
+		}
+		$result = [];
+		for ($i = 0; $i < count($response->characters); $i++) {
+			$result []= new Character(
+				uid: $response->charIds[$i],
+				name: $response->characters[$i],
+				level: $response->levels[$i],
+				online: $response->online[$i],
+			);
+		}
+		$this->disconnect();
+		return $result;
 	}
 
 	/**

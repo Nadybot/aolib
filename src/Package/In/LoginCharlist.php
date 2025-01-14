@@ -10,6 +10,11 @@ class LoginCharlist extends Package\InPackage {
 	 * @param string[] $characters
 	 * @param int[]    $levels
 	 * @param bool[]   $online
+	 *
+	 * @psalm-param list<int>    $charIds
+	 * @psalm-param list<string> $characters
+	 * @psalm-param list<int>    $levels
+	 * @psalm-param list<bool>   $online
 	 */
 	public function __construct(
 		public array $charIds,

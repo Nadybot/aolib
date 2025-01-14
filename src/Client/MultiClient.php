@@ -74,7 +74,7 @@ class MultiClient {
 	}
 
 	/**
-	 * Get infomation about a public group we're in
+	 * Get information about a public group we're in
 	 *
 	 * @param string|GroupId $id the name or id of the group
 	 *
@@ -207,7 +207,7 @@ class MultiClient {
 	 * Look up the UID of a given character
 	 *
 	 * @param string $character The name of the character
-	 * @param bool   $cacheOnly If false, then don't send lookup-packages, only use the cacne
+	 * @param bool   $cacheOnly If false, then don't send lookup-packages, only use the cache
 	 *
 	 * @return int|null Either the UID, or NULL, if the character doesn't exist/is frozen
 	 */
@@ -222,11 +222,11 @@ class MultiClient {
 	}
 
 	/**
-	 * Look up the chacter name of a given UID
+	 * Look up the character name of a given UID
 	 *
 	 * @param int  $uid       The user ID to look up
 	 * @param bool $cacheOnly If false, then don't send lookup-packages,
-	 *                        only use the cacne
+	 *                        only use the cache
 	 *
 	 * @return string|null Either the name of the character, or NULL, if the UID is currently not in use
 	 */
