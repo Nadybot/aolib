@@ -1,11 +1,13 @@
+php_version = "8.1"
+
 [source]
 paths = ["src"]
 excludes = [ ]
 includes = ["vendor"]
-extensions = ["php", "php81"]
+extensions = ["php"]
 
 [linter]
-level = "Error"
+default_plugins = true
 
 [[linter.rules]]
 name = "best-practices/no-unused-parameter"
@@ -25,10 +27,6 @@ psr = false
 
 [[linter.rules]]
 name = "strictness/no-assignment-in-condition"
-level = "Off"
-
-[[linter.rules]]
-name = "strictness/require-constant-type"
 level = "Off"
 
 [[linter.rules]]
@@ -52,5 +50,29 @@ name = "best-practices/no-multi-assignments"
 level = "Off"
 
 [[linter.rules]]
-name = "migration/readonly-class-promotion"
+name = "maintainability/kan-defect"
+level = "Off"
+
+[[linter.rules]]
+name = "maintainability/halstead"
+level = "Off"
+
+[[linter.rules]]
+name = "maintainability/cyclomatic-complexity"
+level = "Off"
+
+[[linter.rules]]
+name = "maintainability/too-many-methods"
+level = "Off"
+
+[[linter.rules]]
+name = "maintainability/excessive-parameter-list"
+level = "Off"
+
+[[linter.rules]]
+name = "maintainability/too-many-properties"
+level = "Off"
+
+[[linter.rules]]
+name = "maintainability/too-many-enum-cases"
 level = "Off"
