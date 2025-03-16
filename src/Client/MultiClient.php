@@ -53,7 +53,7 @@ class MultiClient {
 	) {
 		$this->readQueue = new Queue(0);
 		// @phpstan-ignore-next-line
-		if (empty($workers)) {
+		if (!count($workers)) {
 			throw new InvalidArgumentException(__CLASS__ . '::' . __FUNCTION__ . "(\$workers\) must me non-empty");
 		}
 		foreach ($workers as $key => $workerConfig) {
@@ -78,7 +78,7 @@ class MultiClient {
 	 *
 	 * @param string|GroupId $id the name or id of the group
 	 *
-	 * @return Group|null Information about the group, or NULL, if we're not in it
+	 * @return null|Group Information about the group, or NULL, if we're not in it
 	 */
 	public function getGroup(string|GroupId $id): ?Group {
 		return $this->getBestWorker()?->getGroup($id);
@@ -209,7 +209,7 @@ class MultiClient {
 	 * @param string $character The name of the character
 	 * @param bool   $cacheOnly If false, then don't send lookup-packages, only use the cache
 	 *
-	 * @return int|null Either the UID, or NULL, if the character doesn't exist/is frozen
+	 * @return null|int Either the UID, or NULL, if the character doesn't exist/is frozen
 	 */
 	public function lookupUid(string $character, bool $cacheOnly=false, ?string $worker=null): ?int {
 		$uid = null;
@@ -228,7 +228,7 @@ class MultiClient {
 	 * @param bool $cacheOnly If false, then don't send lookup-packages,
 	 *                        only use the cache
 	 *
-	 * @return string|null Either the name of the character, or NULL, if the UID is currently not in use
+	 * @return null|string Either the name of the character, or NULL, if the UID is currently not in use
 	 */
 	public function lookupCharacter(int $uid, bool $cacheOnly=false, ?string $worker=null): ?string {
 		$character = null;
@@ -303,7 +303,7 @@ class MultiClient {
 	 * @param bool $cacheOnly If true, only check our cached online-status
 	 *                        from the buddylist, otherwise send a packet
 	 *
-	 * @return bool|null Either true/false if online/offline or null, if the status is unknown
+	 * @return null|bool Either true/false if online/offline or null, if the status is unknown
 	 */
 	public function isOnline(int $uid, bool $cacheOnly=true, ?string $worker=null): ?bool {
 		$online = null;

@@ -117,7 +117,7 @@ class Parser {
 	 * ~: end of message
 	 */
 	private function readExtendedMessage(string $msg): ?ExtendedMessage {
-		if (empty($msg)) {
+		if (!strlen($msg)) {
 			return null;
 		}
 		$origMessage = $msg;
