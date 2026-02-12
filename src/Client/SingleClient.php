@@ -161,6 +161,8 @@ class SingleClient {
 			return ($uid === self::UID_NONE) ? null : $uid;
 		}
 		$this->pendingUidLookups[$character] ??= [];
+
+		/** @var EventLoop\Suspension<?int> */
 		$suspension = EventLoop::getSuspension();
 		$this->write(new Out\CharacterLookup(name: $character));
 		$this->pendingUidLookups[$character] []= $suspension;
@@ -267,6 +269,8 @@ class SingleClient {
 		$binPackage = $package->toBinaryPackage();
 		if ($package instanceof Package\Out\RateLimited) {
 			$this->logger?->debug('Sending rate-limited package via bucket-queue');
+
+			/** @var \Amp\DeferredFuture<void> */
 			$suspension = new DeferredFuture();
 			$future = $suspension->getFuture();
 			$this->sendQueue->push($package, $priority, $suspension);
@@ -329,6 +333,7 @@ class SingleClient {
 					]);
 					$this->accountUnfreezer = null;
 					delay(5);
+					// @mago-ignore analysis:too-few-arguments
 					$this->login(...func_get_args());
 					return;
 				}
@@ -428,6 +433,7 @@ class SingleClient {
 					]);
 					$this->accountUnfreezer = null;
 					delay(5);
+					// @mago-ignore analysis:too-few-arguments
 					return $this->getChars(...func_get_args());
 				}
 				$parts = explode(': ', $errorMsgs[0] ?? '');

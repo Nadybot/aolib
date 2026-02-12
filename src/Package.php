@@ -21,7 +21,7 @@ abstract class Package implements Stringable {
 		$refClass = new ReflectionClass($this);
 		$props = get_object_vars($this);
 		foreach ($props as $key => $value) {
-			$refProp = $refClass->getProperty($key);
+			$refProp = $refClass->getProperty((string)$key);
 			if ($refProp->isInitialized($this) === false) {
 				continue;
 			}
@@ -70,6 +70,7 @@ abstract class Package implements Stringable {
 
 	/** @return list<bool|int|string|string[]|int[]|GroupId> */
 	protected function getPackageValues(): array {
+		/** @var list<bool|int|string|string[]|int[]|GroupId> */
 		$result = [];
 		$refClass = new \ReflectionClass($this);
 		$refFunc = $refClass->getMethod('__construct');
@@ -80,7 +81,6 @@ abstract class Package implements Stringable {
 				throw new \Exception(self::class . " does not promote \${$refParam->name} in its constructor");
 			}
 			$refProp = new \ReflectionProperty($this, $refParam->getName());
-			$refProp->setAccessible(true);
 			$paramAttrs = $refProp->getAttributes(Param::class);
 			if (count($paramAttrs)) {
 				$paramAttr = $paramAttrs[0]->newInstance();
@@ -91,6 +91,8 @@ abstract class Package implements Stringable {
 			$pos++;
 		}
 		ksort($result);
+
+		/** @var list<bool|int|string|string[]|int[]|GroupId> $result */
 		return $result;
 	}
 

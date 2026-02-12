@@ -81,7 +81,10 @@ class TEA {
 
 		$ret    = '';
 
+		/** @var int[] */
 		$keyarr  = unpack('V*', pack('H*', $key));
+
+		/** @var int[] */
 		$dataarr = unpack('V*', $str);
 
 		$prev = [0, 0];

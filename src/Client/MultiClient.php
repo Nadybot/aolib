@@ -51,12 +51,20 @@ class MultiClient {
 		private ?Parser $parser=null,
 		private ?LeakyBucket $bucket=null,
 	) {
-		$this->readQueue = new Queue(0);
-		// @phpstan-ignore-next-line
+		/** @var Queue<WorkerPackage> */
+		$queue = new Queue(0);
+		$this->readQueue = $queue;
+
+		/**
+		 * @phpstan-ignore-next-line
+		 *
+		 * @mago-ignore analysis:impossible-condition
+		 */
 		if (!count($workers)) {
 			throw new InvalidArgumentException(__CLASS__ . '::' . __FUNCTION__ . "(\$workers\) must me non-empty");
 		}
 		foreach ($workers as $key => $workerConfig) {
+			// @mago-ignore analysis:impossible-condition
 			if (!($workerConfig instanceof WorkerConfig)) {
 				throw new InvalidArgumentException(__CLASS__ . '::' . __FUNCTION__ . "(\$workers[\$key\]\) is not a WorkerConfig");
 			}
@@ -67,10 +75,16 @@ class MultiClient {
 	/**
 	 * Get a list of all public group we're in
 	 *
+	 * @throws \Exception if no worker is connected
+	 *
 	 * @return array<string,Group> The groups indexed by their name
 	 */
 	public function getGroups(): array {
-		return $this->getBestWorker()?->getGroups();
+		$groups = $this->getBestWorker()?->getGroups();
+		if (!isset($groups)) {
+			throw new \Exception('Misconfigured MultiClient: no worker is connected');
+		}
+		return $groups;
 	}
 
 	/**
